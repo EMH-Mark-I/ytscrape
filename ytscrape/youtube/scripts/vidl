@@ -12,7 +12,7 @@
 			
 	elif [[ $quality = "360p" ]];
 	then
-		dlquality="--ytdl-format=43+140"
+		dlquality="--ytdl-format=18+140"
 			
 	elif [[ $quality = "720p" ]];
 	then
@@ -88,8 +88,8 @@ then
 	read -p "Input the number of a URL from the list:	" ans
 	clear
 	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
-    youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
-    notify-send "YouTube-dl action is finished."
+	youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
+	notify-send "YouTube-dl action is finished."
 fi
 
 #Change list layout
