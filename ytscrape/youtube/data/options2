@@ -1,0 +1,26 @@
+#Grep each line into a seperate file.
+
+echo "
+-
+				[Today]" > top
+grep "second ago" masterlist > second
+grep "seconds ago" masterlist > seconds
+grep "minute ago" masterlist > minute
+grep "minutes ago" masterlist > minutes
+grep "hour ago" masterlist > hour
+grep "hours ago" masterlist > hours
+echo "
+-
+				[Yesterday]" > day
+grep "day ago" masterlist >> day
+echo "
+-
+				[This Week]" > days
+grep "days ago" masterlist >> days
+grep "week ago" masterlist > week
+grep "weeks ago" masterlist > weeks
+grep "month ago" masterlist > month
+grep "months ago" masterlist > months
+grep "year ago" masterlist > year
+grep "years ago" masterlist > years
+cat top >> bldlist

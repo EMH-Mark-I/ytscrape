@@ -1,0 +1,105 @@
+#!/bin/bash
+
+#Set variables to make script portable.
+	path=`realpath $0`
+	installdir=`dirname $path`
+
+#Setup loop for user input.
+	while true; do
+	cd $installdir/youtube/
+	clear
+
+#Display input options
+echo "Choose an option by entering its number located in brackets [n].
+[1] Update list
+[2] View list
+[3] View list in spreadsheet
+[4] YouTube-dl
+[l] Change list layout
+[q] Quit
+"
+	read -p "Enter an option: " ans
+
+#Update list
+if test "$ans" = "1" ;
+then
+	bash scripts/update
+fi
+
+#View list
+if test "$ans" = "2" ;
+then
+cd data/
+
+	#Setup loop for user input.
+	while true; do
+	clear
+
+	#Grep for time info
+	bash options2
+
+	#Organize layout by time.
+	bash options3
+
+	#Build list
+	bash options4
+	cat list timestamp
+
+	#Display input options
+echo "
+Choose an option by entering it's number located in brackets [n]
+[l] Change list layout
+[b] Go Back
+"
+	read -p "Enter an option: " ans2
+
+	#Change list layout
+	if test "$ans2" = "l" ;
+	then
+		cd data/
+		nano options3
+	fi
+
+	#Go Back
+	if test "$ans2" = "b" ;
+	then
+		break
+	fi
+	done
+fi
+
+#View list in spread sheet.
+if test "$ans" = "3" ;
+then
+cd data/
+	#Grep for time info
+	bash options2
+
+	#Organize layout by time.
+	bash options3
+
+	#Build list
+	bash options4
+	localc list.ods
+fi
+
+#YouTube-dl
+if test "$ans" = "4" ;
+then
+	bash scripts/vidl
+fi
+
+#Change list layout
+if test "$ans" = "l" ;
+then
+	nano data/options3
+fi
+
+#Quit
+if test "$ans" = "q" ;
+then
+	clear
+	exit
+fi
+done
+

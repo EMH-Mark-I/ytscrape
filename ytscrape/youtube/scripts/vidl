@@ -1,0 +1,117 @@
+#Move to data/ directory and set variables.
+	cd data/
+	vlocation=$(cat options | grep "1:" | sed 's/1: //')
+	mlocation=$(cat options | grep "2:" | sed 's/2: //')
+	quality=$(cat options | grep "3:" | sed 's/3: //')
+
+#Pseudo loop for detecting variable $quality data. It will exit the script if it detects an invalid pattern.
+#DASH videos won't always work in mpv, so this is why the options are limited. You can add your own if you want to expand the range.
+	if [[ $quality = "180p" ]];
+	then
+		dlquality="--ytdl-format=36+139"
+			
+	elif [[ $quality = "360p" ]];
+	then
+		dlquality="--ytdl-format=43+140"
+			
+	elif [[ $quality = "720p" ]];
+	then
+		dlquality="--ytdl-format=22+140"
+
+	elif [[ $quality = "best" ]];
+	then
+		dlquality="--ytdl-format=best"
+		
+	else
+		echo "Invalid option in streaming quality settings!"
+		sleep 2s
+		echo "Please insert a valid option.
+		"
+		sleep 2s
+		nano options
+		exit 0
+	fi
+	
+ytquality=$(echo $dlquality | cut -d= -f2)
+
+#Setup loop for user input.
+while true; do
+	clear
+#Grep for time info
+	bash options2
+
+#Organize layout by time.
+	bash options3
+
+#Build list
+	bash options4
+
+#Show the timestamp.
+	cat list timestamp
+
+#Display input options
+echo "
+Choose an option by entering it's number located in brackets [n].
+[1] Download video
+[2] Stream video now
+[3] Download as MP3
+[l] Change list layout
+[o] Options
+[b] Back
+"
+
+	read -p "Enter an option: " ans2
+
+#Download video
+if test "$ans2" = "1" ;
+then
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
+	youtube-dl -f $ytquality $URL -o $vlocation
+	notify-send "YouTube-dl action is finished."
+fi
+
+#Stream video
+if test "$ans2" = "2" ;
+then
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
+	display=$(cat options | grep "4:" | sed 's/4: //')
+	mpv $display $dlquality $URL
+fi
+
+#Download as MP3
+if test "$ans2" = "3" ;
+then
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
+    youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
+    notify-send "YouTube-dl action is finished."
+fi
+
+#Change list layout
+if test "$ans2" = "l" ;
+then
+	nano options3
+fi
+
+#Options
+if test "$ans2" = "o" ;
+then
+	nano options
+	clear
+	echo "Reloading settings."
+	sleep 2s
+	exec "$ScriptLoc"
+fi
+
+#Back
+if test "$ans2" = "b" ;
+then
+	break
+fi
+
+done

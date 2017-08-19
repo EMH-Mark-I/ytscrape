@@ -1,0 +1,21 @@
+#Making a seperate list.ods that will be used for retaining the custom list settings and used as the spreadsheet to be viewed. Spreasheet.ods is the master list for everything and doesn't need to be edited.
+	rm list.ods 2>/dev/null
+	cp bldlist list.ods
+
+#Show column descriptions
+	sed -i '1i [URL] \t [Channel] \t [Title] \t\t [Date]' list.ods
+
+#Show column descriptions
+#This list file will be used for displaying in terminal. The "column" command inserts spaces to posistion coloums in the terminal window, which renders the file useless as a spreadsheet.
+	cat bldlist | sed '1i [URL] \t [Channel] \t [Title] \t\t [Date]' | column -s $'\t' -t  > list
+
+
+#clean up
+	rm second seconds 2>/dev/null
+	rm minute minutes 2>/dev/null
+	rm hour hours 2>/dev/null
+	rm day days 2>/dev/null
+	rm week weeks 2>/dev/null
+	rm month months 2>/dev/null
+	rm year years 2>/dev/null
+	rm bldlist top

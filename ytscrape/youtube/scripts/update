@@ -1,0 +1,93 @@
+#
+	clear
+	echo "Fetching channels. Wait until the process is finished.
+"
+
+#Download the channel info.
+	wget -i channels -P store
+
+#Clean out old info.
+	cd data/ 2>/dev/null
+	rm masterlist 2>/dev/null
+	rm list.ods 2>/dev/null
+	rm list 2>/dev/null
+	rm vidl_URL2 2>/dev/null
+	rm timestamp 2>/dev/null
+
+#Setup data files for the first "video" file since it won't be specified with a number, unlike the rest.
+	cat ../store/videos | grep "channel-header-profile-image" | cut -d= -f5 | sed 's/"//g; s/>//g' > names
+	cat ../store/videos | grep "aria-describedby=" | cut -d "\"" -f8 | tr -d "=" > store_titles
+	cat ../store/videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f1 | rev | cut -d= -f2 | sed 's/^/=/g' > store_URL
+	cat ../store/videos | grep "yt-lockup-meta-info" | cut -d">" -f 3,5	| sed 's/li//g; s/<//g; s/>//g; s|/||g; s/views/views:	/g' | cut -d: -f2 | sed 's/ div//g' > store_views
+
+	names=$(cat names | sed '/^$/d')
+	#Combining the channel name with the URL, or else the channel name will be displayed only once in the list if it were simply pasted into the spreadsheet.
+	sed -i "s/$/\t/g; s/$/$names/g" store_URL
+	paste store_URL store_titles store_views > masterlist
+	rm store_titles store_URL store_views names
+
+#Setup data files to organize the remaining information from the "video" files in a loop. Channellist varible obtains the line count of channels and subtracts "1" from the output since the first channel in the list is already processed from the previous commands. 
+	channellist=$(wc -l ../channels | cut -d" " -f1 | sed 's/$/-1/' | bc)
+	counter=1
+	while [ $counter -le $channellist ]
+	do
+	videos=videos.$counter
+
+	cat ../store/$videos | grep "channel-header-profile-image" | cut -d= -f5 | sed 's/"//g; s/>//g' > names2
+	cat ../store/$videos | grep "aria-describedby=" | cut -d "\"" -f8 | tr -d "=" > store_titles
+	cat ../store/$videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f1 | rev | cut -d= -f2 | sed 's/^/=/g' >> store_URL
+	cat ../store/$videos | grep "yt-lockup-meta-info" | cut -d">" -f 3,5	| sed 's/li//g; s/<//g; s/>//g; s|/||g; s/views/views:	/g' | cut -d: -f2 | sed 's/ div//g' > store_views
+
+	names2=$(cat names2 | sed '/^$/d')
+	#Combining the channel name with the URL, or else the channel name will be displayed only once in the list if it were simply pasted into the spreadsheet.
+	sed -i "s/$/\t/g; s/$/$names2/g" store_URL
+	paste store_URL store_titles store_views >> masterlist
+	rm store_titles store_URL store_views names2
+
+	((counter++))
+	done
+
+#Inserting numbers sequentially in front of URL addresses. These will be used as ID numbers for specifying a video with mpv and youtube-dl in the vidl script. 
+	awk '{ print FNR "-URL" $0 }' masterlist > masterlist2
+	rm masterlist
+	mv masterlist2 masterlist
+	
+	#Storing URL field back into a seperate file now that it's numbered. This will keep it seperate from the following organizing commands. It will be used in vidl.
+	paste masterlist | cut -d'"' -f1 | sed 's/$/\t/g' > vidl_URL2
+
+#Grep for time info
+	bash options2
+
+#Organize layout by time.
+	bash options3
+
+#Build list
+	bash options4
+
+#Show column descriptions	
+	sed -i '1i [URL] \t [Channel] \t [Title] \t\t [Date]' masterlist
+
+#Show a timestamp.
+	echo "
+[This list was updated on `date +"%D_%r"`]" > timestamp
+
+#Print information to screen.
+	clear
+	echo "Fetch complete
+"
+	cat list timestamp
+
+#Cleanup
+	rm second seconds 2>/dev/null
+	rm minute minutes 2>/dev/null
+	rm hour hours 2>/dev/null
+	rm day days 2>/dev/null
+	rm week weeks 2>/dev/null
+	rm month months 2>/dev/null
+	rm year years 2>/dev/null
+
+	rm users views URL URL2 titles vidl_URL bldlist top 2>/dev/null
+	rm ../store/*
+
+#Prompt for input to end script and return back to the initial ytscrape loop.
+	read -s -n 1 -p "Press any key to continue..."

@@ -1,0 +1,14 @@
+# Directory location for video downloads.
+1: /home/$USER/%(title)s-%(id)s.%(ext)s
+
+# Directory location for MP3 downloads.
+2: /home/$USER/%(title)s-%(id)s.%(ext)s
+
+# Video quality settings.
+# Insert one of the following quality options seen below in the designated area. (Don't remove the line number 3 and colon.)
+# "180p" "360p" "720p" "best"
+3: best
+
+# MPV display options.
+# If you want videos to start in fullscreen, add "--fs" to the end of the string below.
+4: --autofit=100%x100% --fs
