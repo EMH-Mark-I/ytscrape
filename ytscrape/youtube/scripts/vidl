@@ -55,6 +55,7 @@ Choose an option by entering it's number located in brackets [n].
 [1] Download video
 [2] Stream video now
 [3] Download as MP3
+[4] Open video in browser
 [l] Change list layout
 [o] Options
 [b] Back
@@ -90,6 +91,15 @@ then
 	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
 	youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
 	notify-send "YouTube-dl action is finished."
+fi
+
+#Open video in browser
+if test "$ans2" = "4" ;
+then
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
+	xdg-open $URL &>/dev/null & disown
 fi
 
 #Change list layout
