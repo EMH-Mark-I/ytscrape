@@ -15,6 +15,7 @@ echo "Choose an option by entering its number located in brackets [n].
 [2] View list
 [3] View list in spreadsheet
 [4] YouTube-dl
+[c] Add / Remove channels
 [l] Change list layout
 [q] Quit
 "
@@ -89,6 +90,12 @@ then
 	bash scripts/vidl
 fi
 
+#Add / Remove channels
+if test "$ans" = "c" ;
+then
+	nano channels
+fi
+
 #Change list layout
 if test "$ans" = "l" ;
 then
@@ -102,4 +109,3 @@ then
 	exit
 fi
 done
-
