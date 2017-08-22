@@ -7,7 +7,7 @@
 
 #Show column descriptions
 #This list file will be used for displaying in terminal. The "column" command inserts spaces to posistion coloums in the terminal window, which renders the file useless as a spreadsheet.
-	cat bldlist | sed '1i [URL] \t [Channel] \t [Title] \t\t [Date]' | column -s $'\t' -t  > list
+	cat bldlist | sed -e 's/\(L\).*\("\)/\1\2/' | sed 's/"//' | sed '1i [URL] \t [Channel] \t [Title] \t\t [Date]' | column -s $'\t' -t  > list
 
 
 #clean up
