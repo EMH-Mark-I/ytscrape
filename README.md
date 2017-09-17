@@ -10,6 +10,7 @@ youtube-dl
 
 mpv player
 
+bash
 
 #### Known Issues
 • Streaming videos with mpv might not always work due to youtube occasionally using different formats. Quality ranges for the script have been set for 180p, 360p, 720p, and best (which is mpv default.) I left out DASH options since those don't seem to always work, and due to audio being split from video. I'll might setup an easy way to just copy the whole URL to clipboard so that you can use it however you want outside of the script.
@@ -23,6 +24,12 @@ mpv player
 Enable the execute permission bit for the "ytscrape" file.
 
 `chmod +x ytscrape`
+
+The ytscrape executable needs to be located along side the youtube directory. If the youtube directory is missing, the script will fail.
+
+Move the executable script and the youtube directory into /home/$USER/bin, and you will be able to run the script from anywhere in your shell.
+
+`mv ytscrape ~/bin && mv youtube ~/bin`
 
 ### Adding channels
 
