@@ -3,6 +3,9 @@
 	echo "Fetching channels. Wait until the process is finished.
 "
 
+#Clean out any files in the store directory.
+	rm store/* 2>/dev/null
+
 #Download the channel info.
 	wget -i channels -P store
 
