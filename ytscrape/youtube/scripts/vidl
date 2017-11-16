@@ -57,6 +57,7 @@ Choose an option by entering it's number located in brackets [n].
 [3] Download as MP3
 [4] Open video in browser
 [l] Change list layout
+[i] Display video info
 [o] Options
 [b] Back
 "
@@ -98,7 +99,7 @@ if test "$ans2" = "4" ;
 then
 	read -p "Input the number of a URL from the list:	" ans
 	clear
-	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|')
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://hooktube.com/watch?v=|')
 	xdg-open $URL &>/dev/null & disown
 fi
 
@@ -106,6 +107,24 @@ fi
 if test "$ans2" = "l" ;
 then
 	nano options3
+fi
+
+#Display video info
+if test "$ans2" = "i" ;
+then
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+	URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://www.youtube.com/watch?v=|') &&
+	cd ../store &&
+	wget -O $ans-info_file $URL &&
+	clear
+	echo "[$ans-URL]" > ../data/$ans-info_file
+	grep -m1 /title $ans-info_file | sed 's|<title>|[Title: |g' | sed 's|</title>.*||g' | sed 's|- YouTube|]\n|g' | sed 's/%21/!/g' | sed 's/%3A/:/g' | sed 's/%3F/?/g' | sed 's/%3D/=/g'| sed 's/%26/\&/g' | sed 's/\&quot;/"/g' | sed 's/\&amp;/\&/g' | sed "s/\&#39;/'/g" >> ../data/$ans-info_file
+	grep "eow-description" $ans-info_file | sed 's|.*eow-description" class="" >||g' | sed 's|</div>  <div id="watch-description-extras">||g' | sed 's|<br />|\n|g' | sed 's|%21|!|g' | sed 's|%3A|:|g' | sed 's|%3F|?|g' | sed 's|%3D|=|g'| sed 's|%26|\&|g' | sed 's|</a>||g' | sed 's|</p>||g' | sed 's|%2F|/|g' | sed 's|nofollow.*||g' | sed s'|<a href.*https|https|g' | sed s'|<a href.*http|http|g' | sed 's|&amp.*||g' | sed 's|" data.*||g' | sed 's|" target.*||g' | sed 's|" rel.*||g' | sed s'|<a href.*false;">||g' >> ../data/$ans-info_file
+	cat ../data/$ans-info_file
+	read -s -n 1 -p "Press any key to continue..."
+	rm $ans-info_file ../data/$ans-info_file
+	cd ../data
 fi
 
 #Options

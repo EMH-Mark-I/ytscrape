@@ -13,7 +13,7 @@ mpv player
 bash
 
 #### Known Issues
-• Streaming videos with mpv might not always work due to youtube occasionally using different formats. Quality ranges for the script have been set for 180p, 360p, 720p, and best (which is mpv default.) I left out DASH options since those don't seem to always work, and due to audio being split from video. I'll might setup an easy way to just copy the whole URL to clipboard so that you can use it however you want outside of the script.
+• Quality ranges for the script have been set for only 180p, 360p, 720p, and best (which is mpv default.) DASH quality options are not included since their files are split and not possible to stream.
 
 • If you're following a large number of channels, it can take a while for the script (using wget) to obtain each of the channels.
 
@@ -85,19 +85,23 @@ Insert q and press return to quit.
 
 [2] Stream video:
 
-• To stream the video, insert option 2 and press return. Insert the number as seen beside the URL in the list.
+• To stream the video, insert option 2 and press return. Next insert the number as seen beside the URL in the list.
 
 [3] Download as mp3:
 
-• To download a video as an mp3 file, insert option 3 and press return. Insert the number as seen beside the URL in the list. The default download location is /home/$USER/.
+• To download a video as an mp3 file, insert option 3 and press return. Next insert the number as seen beside the URL in the list. The default download location is /home/$USER/.
 
 [4] Open video in browser:
 
-• To open the video from a browser, insert option 4 and press return. Insert the number as seen beside the URL in the list. The selected video will open in the system defulat browser.
+• To open the video from a browser, insert option 4 and press return. Next insert the number as seen beside the URL in the list. The selected video will open in the system defulat browser.
 
 [l] Change list layout:
 
-• To change the layout of the list, insert option l (as in lowercase "L.") It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
+• To change the layout of the list, insert option l (as in lowercase "L") and press return. It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
+
+[i] Display video info
+
+• To view the description of the video (known as the description field on YouTube which is typically located below the video player), insert option i (as in lowercase "I")  and press return. Next insert the number as seen beside the URL in the list and press return. To leave the video description view, press any key on the keyboard.
 
 [o] Options:
 
