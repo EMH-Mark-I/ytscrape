@@ -1,4 +1,4 @@
-#Making a seperate list.ods that will be used for retaining the custom list settings and used as the spreadsheet to be viewed. Spreasheet.ods is the master list for everything and doesn't need to be edited.
+#Making a seperate list.ods that will be used for retaining the custom list settings and used as the spreadsheet to be viewed. "masterlist" is the master list for everything and doesn't need to be edited.
 	rm list.ods 2>/dev/null
 	cp bldlist list.ods
 
