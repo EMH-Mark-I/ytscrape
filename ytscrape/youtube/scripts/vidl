@@ -51,7 +51,7 @@ while true; do
 
 #Display input options
 echo "
-Choose an option by entering it's number located in brackets [n].
+Choose an option by entering its number located in brackets [n].
 [1] Download video
 [2] Stream video now
 [3] Download as MP3
