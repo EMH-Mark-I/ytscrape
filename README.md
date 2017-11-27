@@ -13,9 +13,15 @@ mpv player
 bash
 
 #### Known Issues
+• Live videos won't show in the list.
+
 • Quality ranges for the script have been set for only 180p, 360p, 720p, and best (which is mpv default.) DASH quality options are not included since their files are split and not possible to stream.
 
 • If you're following a large number of channels, it can take a while for the script (using wget) to obtain each of the channels.
+
+• HTML strings might occasionally appear on the end of URLs or paragraphs when viewing a video description.
+
+• Quotes are removed from titles in the list view to prevent issues when sorting.
 
 • To exit URL input options, just put a q or any letter and press return.
 
