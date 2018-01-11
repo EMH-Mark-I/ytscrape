@@ -20,7 +20,7 @@
 #Setup data files for the first "video" file since it won't be specified with a number, unlike the rest.
 	cat ../store/videos | grep "channel-header-profile-image" | cut -d= -f5 | sed 's/"//g; s/>//g' > names
 	cat ../store/videos | grep "aria-describedby=" | cut -d "\"" -f8 | tr -d "=" | sed 's/%21/!/g' | sed 's/%3A/:/g' | sed 's/%3F/?/g' | sed 's/%3D/=/g'| sed 's/%26/\&/g' | sed 's/\&quot;//g' | sed 's/\&amp;/\&/g' | sed "s/\&#39;/'/g" | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > store_titles
-	cat ../store/videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f1 | rev | cut -d= -f2 | sed 's/^/=/g' > store_URL
+	cat ../store/videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f2 | rev | cut -d= -f2 | sed 's/ rel//g' | sed 's/^/=/g' > store_URL
 	cat ../store/videos | grep "yt-lockup-meta-info" | cut -d">" -f 3,5	| sed 's/li//g; s/<//g; s/>//g; s|/||g; s/views/views:	/g' | cut -d: -f2 | sed 's/ div//g' > store_views
 
 	names=$(cat names | sed '/^$/d')
@@ -38,7 +38,7 @@
 
 	cat ../store/$videos | grep "channel-header-profile-image" | cut -d= -f5 | sed 's/"//g; s/>//g' > names2
 	cat ../store/$videos | grep "aria-describedby=" | cut -d "\"" -f8 | tr -d "=" | sed 's/%21/!/g' | sed 's/%3A/:/g' | sed 's/%3F/?/g' | sed 's/%3D/=/g'| sed 's/%26/\&/g' | sed 's/\&quot;//g' | sed 's/\&amp;/\&/g' | sed "s/\&#39;/'/g" | awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > store_titles
-	cat ../store/$videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f1 | rev | cut -d= -f2 | sed 's/^/=/g' >> store_URL
+	cat ../store/$videos | grep "aria-describedby=" | cut -d">" -f2 | rev | cut -d= -f2 | rev | cut -d= -f2 | sed 's/ rel//g' | sed 's/^/=/g' >> store_URL
 	cat ../store/$videos | grep "yt-lockup-meta-info" | cut -d">" -f 3,5	| sed 's/li//g; s/<//g; s/>//g; s|/||g; s/views/views:	/g' | cut -d: -f2 | sed 's/ div//g' > store_views
 
 	names2=$(cat names2 | sed '/^$/d')
