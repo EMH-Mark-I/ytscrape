@@ -128,8 +128,9 @@ This will reset your download locations, quality settings, and list asortment."
 	if [ "$ans2" = "Y" -o "$ans2" = "y" -o "$ans2" = "yes" -o "$ans2" = "YES" ];
 	then
 	echo "Resetting ytscrape options."
-	rm data/options*
-	cp data/reset/* data/
+	cd data/ &&
+	rm options* 
+	cp reset/* .
 	#Grep for time info
 	bash options2
 	#Organize layout by time.
