@@ -1,0 +1,27 @@
+# Download video with youtube-dl
+read -p "Input the number of a URL from the list:	" ans
+clear
+
+#Check answer
+if [ "$ans" = "q" -o "$ans" = "Q" ];
+	then
+	echo "Exit"
+
+else
+	URL=$(grep 'URL' vidl_URL2 |
+	rev |
+	cut -d "=" -f1 |
+	rev |
+	sed "$ans q;d" |
+	sed 's|^|https://www.youtube.com/watch?v=|')
+
+	youtube-dl -f $ytquality $URL -o $vlocation
+
+	#notify-send "YouTube-dl action is finished."
+	if [ $? -eq 0 ];
+	then
+		notify-send "ytscrape: Your video finished downloading."
+	else
+		notify-send "ytscrape: There was an error with downloading the video."
+	fi
+fi

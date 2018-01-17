@@ -4,26 +4,32 @@ This is a bash script html scraper that can be used as an alternative to having 
 
 ![](images/screenshot.png "screenshot")
 
-#### Requirements
+#### Requirements (New Requirments!)
 
-youtube-dl
+[youtube-dl](https://rg3.github.io/youtube-dl/)
 
-mpv player
+[pup HTML parser](https://github.com/EricChiang/pup)
 
-bash
+[mpv player](https://github.com/mpv-player/mpv/)
+
+BASH
+
+Linux
 
 #### Known Issues
-• Live videos won't show in the list.
+• Live videos won't show in the list when linking the /videos YouTube channel URL.
 
 • Quality ranges for the script have been set for only 180p, 360p, 720p, and best (which is mpv default.) DASH quality options are not included since their files are split and not possible to stream.
 
 • If you're following a large number of channels, it can take a while for the script (using wget) to obtain each of the channels.
 
-• HTML strings might occasionally appear on the end of URLs or paragraphs when viewing a video description.
+• HTML and XML character references might occasionally appear in video titles and descriptions. Report it as an issue along with a link to the YouTube video causing the issue.
 
 • Quotes are removed from titles in the list view to prevent issues when sorting.
 
-• To exit URL input options, just put a q or any letter and press return.
+• The shell window will need to be atleast 860 pixels wide or else the shell will attempt to wrap text which can cause confusion in reading the list.
+
+• To exit URL input options, just insert a q and press return. If a video tries to download or stream you can press `CTRL+C` and it will exit the download.
 
 ## Setup
 
@@ -31,23 +37,29 @@ Enable the execute permission bit for the "ytscrape" file.
 
 `chmod +x ytscrape`
 
-The ytscrape executable needs to be located along side the youtube directory. If the youtube directory is missing, the script will fail.
+The ytscrape executable needs to be located along side the `youtube` directory. If the `youtube` directory is missing, the script will fail.
 
-Move the executable script and the youtube directory into /home/$USER/bin, and you will be able to run the script from anywhere in your shell.
+Move the executable script and the youtube directory into /home/$USER/bin, and you will be able to run the script from anywhere in your shell. (Don't copy this into /usr/bin or any directories that would require root access to modify. At the moment ytscrape requires write access to its `youtube` directory in order to store and retrieve information.)
 
-`mv ytscrape ~/bin && mv youtube ~/bin`
+`cp ytscrape ~/bin && co -r youtube ~/bin`
 
-### Adding channels
+## Adding channels
 
-• To add YouTube channels, go to the channel in your web browser and copy the "videos" URL directory.
-
-![](images/youtube_URL.png "youtube_URL")
-
-• Run ytscrape and insert option "c" and press return. This will open a channels file in nano where ytscrape will read. Just paste the URLs, save, then exit nano.
+• Run ytscrape and insert option "c" and press return. This will open a channels file in nano where ytscrape will read.
 
 ![](images/add_channels.png "channels")
 
-### How to use script
+![](images/add_channels_file.png "channels file")
+
+• To add YouTube channels, go to the channel in your web browser and copy the "videos" URL directory. Don't copy the `?disable_polymer=1` at the end of the URL.
+
+GOOD URL: https://www.youtube.com/user/BryanLunduke/videos
+
+BAD URL: https://www.youtube.com/user/BryanLunduke/videos?disable_polymer=1
+
+![](images/youtube_URL.png "youtube_URL")
+
+## How to use script
 
 
 [1] Update list:
@@ -56,7 +68,7 @@ Move the executable script and the youtube directory into /home/$USER/bin, and y
 
 [2] View list:
 
-• To view the list again, insert option 2 and press return. In the list view you will have the option to change the layout of the list.
+• To view the list again, insert option 2 and press return. In the list view you will have the option to change the layout of the list and view video info.
 
 [3] View list in spreadsheet:
 
@@ -64,11 +76,11 @@ Move the executable script and the youtube directory into /home/$USER/bin, and y
 
 [4] YouTube-dl:
 
-• To stream or download videos, insert option 4 and press return. This will bring you to a new view in which you will have the options to download, stream, adjust list layout, and adjust options. (This will require mpv player and youtube-dl.)
+• To stream or download videos, insert option 4 and press return. This will bring you to a new view in which you will have the options to download, stream, adjust list layout, and adjust options. (This will require mpv player and youtube-dl!)
 
 [c] Add / Remove channels:
 
-• To add or remove YouTube channels, insert option c and press return. This will open a channels file in nano where ytscrape will read. Just paste the URLs, save, then exit nano.
+• This will open a channels file in nano where ytscrape will download its list from. Just paste the URLs of the channel on each line, save, then exit nano.
 
 [l] Change list layout:
 
@@ -84,14 +96,11 @@ Insert q and press return to quit.
 
 • To download a video, insert option 1 and press return. Insert the number as seen beside the URL in the list. (Note: The default download location will be /home/$USER/.)
 
-
-![](images/ytdl_url.png "ytdl_url")
-![](images/ytdl_url_insert.png "ytdl_url_insert")
-
-
 [2] Stream video:
 
 • To stream the video, insert option 2 and press return. Next insert the number as seen beside the URL in the list.
+
+![](images/ytdl_url_insert.png "ytdl_url_insert")
 
 [3] Download as mp3:
 

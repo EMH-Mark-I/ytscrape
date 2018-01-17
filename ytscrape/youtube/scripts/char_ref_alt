@@ -1,0 +1,20 @@
+# This is a XML and HTML character reference list for the update script. It's by far complete.
+
+sed 's/%21/!/g' |	# !
+sed 's/%3A/:/g' |	# :
+sed 's/%3F/?/g' |	# ?
+sed 's/%3D/=/g'|	# =
+sed 's|%2F|/|g' |	# /
+sed 's/%26/\&/g' |	# &
+sed 's/\&amp;/\&/g' |	# &
+sed 's/\&quot;//g' |	# (Nothing)
+sed 's/\&#34;//g' |	# (Nothing)
+sed "s/\&#39;/'/g" |	# '
+sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢|'|g" |	# '
+sed "s|ÃƒÆ’Ã‚Â©|é|g" |	# é
+sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âª||g" |	# (Nothing)
+sed '/^\s*$/d' |	# (Remove empty lines)
+sed 's/%2520/ /g' |	# (inserts space)
+sed 's/%23/#/g' |	# #
+sed "s|â€œ|“|g"|	# “
+sed "s|â€�|“|g"	# ”

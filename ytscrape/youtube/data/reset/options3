@@ -1,0 +1,17 @@
+#Comment out the items with a "#" you don't want included in the list.
+#You can reorganize the order if you want.
+
+sort -t$'\t' -k4 -n second >> bldlist
+sort -t$'\t' -k4 -n seconds >> bldlist
+sort -t$'\t' -k4 -n minute >> bldlist
+sort -t$'\t' -k4 -n minutes >> bldlist
+sort -t$'\t' -k4 -n hour >> bldlist
+sort -t$'\t' -k4 -n hours >> bldlist
+sort -t$'\t' -k4 -n day >> bldlist
+#sort -t$'\t' -k4 -n days >> bldlist
+#sort -t$'\t' -k4 -n week >> bldlist
+#sort -t$'\t' -k4 -n weeks >> bldlist
+#sort -t$'\t' -k4 -n month >> bldlist
+#sort -t$'\t' -k4 -n months >> bldlist
+#sort -t$'\t' -k4 -n year >> bldlist
+#sort -t$'\t' -k4 -n years >> bldlist

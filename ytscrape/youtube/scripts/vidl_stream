@@ -1,0 +1,21 @@
+# Stream video with mpv
+read -p "Input the number of a URL from the list:	" ans
+clear
+
+#Check answer
+if [ "$ans" = "q" -o "$ans" = "Q" ];
+	then
+	echo "Exit"
+
+else
+	URL=$(grep 'URL' vidl_URL2 |
+	rev |
+	cut -d "=" -f1 |
+	rev |
+	sed "$ans q;d" |
+	sed 's|^|https://www.youtube.com/watch?v=|')
+	display=$(cat options |
+	grep "4:" |
+	sed 's/4: //')
+	mpv $display $dlquality $URL
+fi

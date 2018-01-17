@@ -1,0 +1,26 @@
+# Download video as mp3
+read -p "Input the number of a URL from the list:	" ans
+clear
+
+#Check answer
+if [ "$ans" = "q" -o "$ans" = "Q" ];
+	then
+	echo "Exit"
+
+else
+	URL=$(grep 'URL' vidl_URL2 |
+	rev |
+	cut -d "=" -f1 |
+	rev |
+	sed "$ans q;d" |
+	sed 's|^|https://www.youtube.com/watch?v=|')
+
+	youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
+
+	if [ $? -eq 0 ];
+	then
+		notify-send "ytscrape: Your mp3 file finished downloading."
+	else
+		notify-send "ytscrape: There was an error with downloading the mp3 file."
+	fi
+fi

@@ -1,77 +1,62 @@
 [Help: YTScrape]
 
-### How to use script
 
+#### How to use script
 
 [1] Update list:
-
-• To get a list of the latest videos from the provided channels, insert option 1 and press return. The script will fetch the web content of the channel URLs and paste it in a list when it completes.
+• This option will update the master list based upon the channels provided.
 
 [2] View list:
-
-• To view the list again, insert option 2 and press return. In the list view you will have the option to change the layout of the list.
+• You can view the list by itself.
 
 [3] View list in spreadsheet:
-
 • This option will open the list in a spreadsheet via Libreoffice libcalc.
 
 [4] YouTube-dl:
-
-• To stream or download videos, insert option 4 and press return. This will bring you to a new view in which you will have the options to download, stream, adjust list layout, and adjust options. (This will require mpv player and youtube-dl.)
+• To stream or download videos, insert option 4 and press return.
 
 [c] Add / Remove channels:
+• This will open a channels file in nano where ytscrape will download its list from. Just paste the URLs of the channel on each line, save, then exit nano.
+  An example URL would look like the following:
+  https://www.youtube.com/user/BryanLunduke/videos
 
-• To add or remove YouTube channels, insert option c and press return. This will open a channels file in nano where ytscrape will read. Just paste the URLs, save, then exit nano.
+  Note: Notice the /videos on the end.
 
 [l] Change list layout:
+• List files in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file or it will break the layout!)
 
-• To change the layout of the list, insert option l (as in lowercase "L.") It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
+[R] Reset ytscrape to default
+• You can reset ytscrape back to its default settings in the event of the list layout or video options files were damaged.
 
 [q] Quit:
-
-Insert q and press return to quit.
-
-
-### Adding channels
-
-• To add YouTube channels, go to the channel in your web browser and copy the "videos" URL directory.
-
-• Run ytscrape and insert option "c" and press return. This will open a channels file in nano where ytscrape will read. Just paste the URLs, save, then exit nano.
+• Insert q and press return to quit.
 
 
-### YouTube-dl
+#### YouTube-dl
 
 [1] Download video:
-
-• To download a video, insert option 1 and press return. Insert the number as seen beside the URL in the list. (Note: The default download location will be /home/$USER/.)
+• This option will be used for downloading a video as seen from the list. When prompted, insert the number as seen beside the URL from the list to download that video. (Note: The default download location will be /home/$USER/youtube-dl/)
 
 2] Stream video:
-
-• To stream the video, insert option 2 and press return. Next insert the number as seen beside the URL in the list.
+• This option will be used for streaming a video via MPV on your system. When prompted, insert the number as seen beside the URL from the list. (Note: MPV may be a little slow to launch the video. Give it about 20 seconds.)
 
 [3] Download as mp3:
-
-• To download a video as an mp3 file, insert option 3 and press return. Next insert the number as seen beside the URL in the list. The default download location is /home/$USER/.
+• This option will be used for downloading a video as an MP3 file. When prompted, insert the number as seen beside the URL from the list. (Note: The default download location is /home/$USER/youtube-dl/)
 
 [4] Open video in browser:
-
-• To open the video from a browser, insert option 4 and press return. Next insert the number as seen beside the URL in the list. The selected video will open in the system defulat browser.
+• The selected video will open in the system default browser.
 
 [l] Change list layout:
-
-• To change the layout of the list, insert option l (as in lowercase "L") and press return. It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
+• List files in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file or it will break the layout!)
 
 [i] Display video info
-
-• To view the description of the video (known as the description field on YouTube which is typically located below the video player), insert option i (as in lowercase "I")  and press return. Next insert the number as seen beside the URL in the list and press return. To leave the video description view, press any key on the keyboard.
+• This option will be used for viewing the video description field from YouTube.
 
 [o] Options:
-
-• To adjust options for youtube-dl and mpv download quality settings or locations, insert option o (as in lowercase "o.") It will open the options file in nano where you can add a custom path for download locations with youtube-dl, video quality settings for both mpv and youtube-dl, and mpv window size. When you close the file, it will reload the script to account for any changes made.
+• This option will be used to adjust youtube-dl and mpv download quality settings or locations. When you close the file, it will reload the script to account for any changes made.
 
 [b] back:
-
-• To return back to the previous view, insert b.
+• To return back to the previous view.
 
 
 #### Credits
