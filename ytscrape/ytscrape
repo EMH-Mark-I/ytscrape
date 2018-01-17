@@ -105,7 +105,14 @@ fi
 #Change list layout
 if test "$ans" = "l" ;
 then
-	nano data/options3
+	cd data/
+	nano options3
+	#Grep for time info
+	bash options2
+	#Organize layout by time.
+	bash options3
+	#Build list
+	bash options4
 fi
 
 #Reset
@@ -123,6 +130,12 @@ This will reset your download locations, quality settings, and list asortment."
 	echo "Resetting ytscrape options."
 	rm data/options*
 	cp data/reset/* data/
+	#Grep for time info
+	bash options2
+	#Organize layout by time.
+	bash options3
+	#Build list
+	bash options4
 	#Prompt for input to end script and return back to the initial ytscrape loop.
 	read -s -n 1 -p "Reset complete. Press any key to continue..."
 	fi
