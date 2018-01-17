@@ -43,6 +43,16 @@ Move the executable script and the youtube directory into /home/$USER/bin, and y
 
 `cp ytscrape ~/bin && co -r youtube ~/bin`
 
+#### Install pup
+
+Pup is an HTML parsing application that ytscrape will use to parse HTML channel files. This will be required to use ytscrape.
+
+`wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip`
+
+`unzip pup_v0.4.0_linux_amd64.zip`
+
+`cp pup ~/bin` or `cp pup /usr/bin`
+
 ## Adding channels
 
 • Run ytscrape and insert option "c" and press return. This will open a channels file in nano where ytscrape will read.
