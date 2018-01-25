@@ -23,7 +23,8 @@ cat ../store/videos |
 pup 'title text{}' |
 sed 's|^  ||g' |
 sed 's| - YouTube||' |
-sed '/^\s*$/d' > names
+sed '/^\s*$/d' |
+awk -v len=20 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > names
 
 #Video titles
 cat ../store/videos |
@@ -72,7 +73,8 @@ do
 	pup 'title text{}' |
 	sed 's|^  ||g' |
 	sed 's| - YouTube||' |
-	sed '/^\s*$/d' > names2
+	sed '/^\s*$/d' |
+	awk -v len=20 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > names2
 
 	#Video titles
 	cat ../store/$videos |
