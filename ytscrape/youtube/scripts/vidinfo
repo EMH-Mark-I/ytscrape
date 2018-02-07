@@ -42,13 +42,13 @@ sed "s|</a>||g" |
 sed "s|</p>||g" |
 sed 's|nofollow.*||g' |
 sed 's|" data-sessionlink.*...||g'|
-sed s'|<a href.*https|https|g' |
-sed s'|<a href.*http|http|g' |
+sed 's|<a href.*https|https|g' |
+sed 's|<a href.*http|http|g' |
 sed 's|&amp.*||g' |
 sed 's|" class.*||g' |
 sed 's|" target.*||g' |
 sed 's|" rel.*||g' |
-sed s'|<a href.*false;">||g' |
+sed 's|<a href.*false;">||g' |
 pup text{} |
 bash ../scripts/char_ref >> ../data/$ans-info_file
 
