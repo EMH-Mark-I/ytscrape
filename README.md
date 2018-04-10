@@ -43,7 +43,7 @@ The ytscrape executable needs to be located along side the `youtube` directory. 
 
 Move the executable script and the youtube directory into /home/$USER/bin, and you will be able to run the script from anywhere in your shell. (Don't copy this into /usr/bin or any directories that would require root access to modify. At the moment ytscrape requires write access to its `youtube` directory in order to store and retrieve information.)
 
-`cp ytscrape ~/bin && co -r youtube ~/bin`
+`cp ytscrape ~/bin && cp -r youtube ~/bin`
 
 #### Install pup
 
