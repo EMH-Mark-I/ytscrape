@@ -13,8 +13,8 @@ There are two methods to install ytscrape.
 
 - 2: Extract the ZIP file.
 - 3: Open the ytscrape-master folder that was extracted.
-- 4: Double click `YTscrape Installer`.
-- 5: A terminal window will popup prompting to Press any key to begin the installation.
+- 4: Run the install.sh script from a terminal. (Note: If your file manager allows executing applications, try double clicking the "YTscrape Installer." instead.)
+- 5: The install script will prompt to Press any key to begin the installation.
 - 6: After the installation completes press any key to exit. YTscrape is located in /home/your_user/bin and can be invoked from a terminal.
 
 Don't forget to install [mpv player](https://github.com/mpv-player/mpv/) and [youtube-dl](https://rg3.github.io/youtube-dl/) for streaming videos from YTscrape.
