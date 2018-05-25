@@ -6,7 +6,7 @@ Note: This is NOT a channel browser.
 
 ![](images/screenshot.png "screenshot")
 
-#### Requirements (New Requirments!)
+#### Requirements
 
 [youtube-dl](https://rg3.github.io/youtube-dl/)
 
@@ -14,10 +14,16 @@ Note: This is NOT a channel browser.
 
 [mpv player](https://github.com/mpv-player/mpv/)
 
+nano text editor
+
 BASH
 
 Linux
 
+<<<<<<< HEAD
+## Selections
+[Known Issues.](KISSUES.md)
+=======
 #### Known Issues
 • Live videos won't show in the list when linking the /videos YouTube channel URL.
 
@@ -133,10 +139,11 @@ Insert q and press return to quit.
 [o] Options:
 
 • To adjust options for youtube-dl and mpv download quality settings or locations, insert option o (as in lowercase "o.") It will open the options file in nano where you can add a custom path for download locations with youtube-dl, video quality settings for both mpv and youtube-dl, and mpv window size. When you close the file, it will reload the script to account for any changes made.
+>>>>>>> 33ff7b866075c012404c86e7f3d047d114671cc8
 
-[b] back:
+[Install Steps.](INSTALL.md)
 
-• To return back to the previous view, insert b.
+[YTscrape Manual](MANUAL.md)
 
 #### Credits
 
