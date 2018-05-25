@@ -28,7 +28,8 @@ fi
 	cd .. &&
 	cp -R ytscrape/* ~/bin &&
 	rm -rf ytscrape_contents/
-	cat misc/path >> /home/$USER/.profile
+	cat misc/path >> ~/.profile
+	source ~/.bashrc
 	echo ""
 	echo "Don't forget to install mpv player and youtube-dl!"
 	read -s -n 1 -p "Install complete. Press any key to exit..."
