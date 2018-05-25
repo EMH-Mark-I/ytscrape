@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=YTscrape Installer
-Exec=script/install.sh
+Exec=./install.sh
 Type=Application
 Terminal=true
