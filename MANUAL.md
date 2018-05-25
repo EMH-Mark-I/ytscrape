@@ -15,9 +15,9 @@
 ---
 <a name="launch"/>
 #### Launching YTscrape
-YTscrape is a terminal based script. There is no graphical interface, all interactions are handled by character refferences in a DOS like application.
+YTscrape is a terminal based script. There is no graphical interface, all interactions are handled by character references in a DOS like application.
 
-To run YTscrape open a terminal emulator and insert `ytscrape` in lower-case characters followed by ENTER. Once the script launches you will be presented with a list of options. Each option is activated by inserting its character refference followed by ENTER.
+To run YTscrape open a terminal emulator and insert `ytscrape` in lower-case characters followed by ENTER. Once the script launches you will be presented with a list of options. Each option is activated by inserting its character reference followed by ENTER.
 
 ![](images/manual_images/example.png "example")
 
@@ -50,8 +50,8 @@ You will see a list as seen above in the image. Adjusting list layouts will be d
 
 If you wish to change the text editor used, you can modify the following files.
 
-- ~/bin/ytscrape; replace all instances of "nano" with your prefered text editor.
-- ~/bin/youtube/scripts/vidl; replace all instances of "nano" with your prefered text editor.
+- ~/bin/ytscrape; replace all instances of "nano" with your preferred text editor.
+- ~/bin/youtube/scripts/vidl; replace all instances of "nano" with your preferred text editor.
 
 ---
 <a name="options"/>
@@ -89,27 +89,15 @@ Below is a layout of the control set for YTscrape for reference.
 
 [1] Update list:
 
-• To get a list of the latest videos from your provided channels, insert option 1 and press return. The script will fetch the web content of the channel URLs and paste it in a list when it completes. Depending on the number of channels and the performance of your network, this can take time to download.
-
-[2] View list:
-
-• To view the list again, insert option 2 and press return. In the list view you will have the option to change the layout of the list and view video info.
+To view the list again, insert option 2 and press return. In the list view you will have the option to change the layout of the list and view video info.
 
 [3] View list in spreadsheet:
 
-• This option will open the list in a spreadsheet via Libreoffice libcalc.
-
-[4] YouTube-dl:
-
-• To stream or download videos, insert option 4 and press return. This will bring you to a new view in which you will have the options to download, stream, adjust list layout, and adjust options. (This will require mpv player and youtube-dl!)
+To stream or download videos, insert option 4 and press return. This will bring you to a new view in which you will have the options to download, stream, adjust list layout, and adjust options. (This will require mpv player and youtube-dl!)
 
 [c] Add / Remove channels:
 
-• This will open a channels file in nano where ytscrape will download its list from. From here you can paste the URLs of the channels on each line, save, then exit nano.
-
-[l] Change list layout:
-
-• To change the layout of the list, insert option l (as in lowercase "L.") It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
+To change the layout of the list, insert option l (as in lowercase "L.") It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
 
 [q] Quit:
 
@@ -119,34 +107,18 @@ Insert q and press return to quit.
 
 [1] Download video:
 
-• To download a video, insert option 1 and press return. Insert the number as seen beside the URL in the list. (Note: The default download location will be /home/$USER/.) If you want to escape the URL number input without downloading the video, insert a "q" and press ENTER to abort.
-
-[2] Stream video:
-
-• To stream the video, insert option 2 and press return. Next insert the number as seen beside the URL in the list. If you want to escape the URL number input without streaming the video, insert a "q" and press ENTER to abort.
+To stream the video, insert option 2 and press return. Next insert the number as seen beside the URL in the list. If you want to escape the URL number input without streaming the video, insert a "q" and press ENTER to abort.
 
 ![](images/ytdl_url_insert.png "ytdl_url_insert")
 
 [3] Download as mp3:
 
-• To download a video as an mp3 file, insert option 3 and press return. Next insert the number as seen beside the URL in the list. The default download location is /home/$USER/. If you want to escape the URL number input without downloading the audio file, insert a "q" and press ENTER to abort.
-
-[4] Open video in browser:
-
-• To open the video from a browser, insert option 4 and press return. Next insert the number as seen beside the URL in the list. The selected video will open in the system defulat browser. If you want to escape the URL number input without opening the video in a browser, insert a "q" and press ENTER to abort.
+To open the video from a browser, insert option 4 and press return. Next insert the number as seen beside the URL in the list. The selected video will open in the system defulat browser. If you want to escape the URL number input without opening the video in a browser, insert a "q" and press ENTER to abort.
 
 [l] Change list layout:
 
-• To change the layout of the list, insert option l (as in lowercase "L") and press return. It will open the list file in nano where you can comment with "#" pound to hide points of time. (Just don't edit the contents of the file.)
-
-[i] Display video info
-
-• To view the description of the video (known as the description field on YouTube which is typically located below the video player), insert option i (as in lowercase "I")  and press return. Next insert the number as seen beside the URL in the list and press return. To leave the video description view, press any key on the keyboard.
+To view the description of the video (known as the description field on YouTube which is typically located below the video player), insert option i (as in lowercase "I")  and press return. Next insert the number as seen beside the URL in the list and press return. To leave the video description view, press any key on the keyboard.
 
 [o] Options:
 
-• To adjust options for youtube-dl and mpv download quality settings or locations, insert option o (as in lowercase "o.") It will open the options file in nano where you can add a custom path for download locations with youtube-dl, video quality settings for both mpv and youtube-dl, and mpv window size. When you close the file, it will reload the script to account for any changes made.
-
-[b] back:
-
-• To return back to the previous view, insert b.
+To return back to the previous view, insert b.

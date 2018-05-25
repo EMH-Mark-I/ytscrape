@@ -10,7 +10,7 @@
 	clear
 
 #Display input options
-echo "Choose an option by entering its number located in brackets [n].
+echo "Choose an option by entering its reference seen in the brackets [n].
 
 [1] Update list
 [2] View list
@@ -42,7 +42,7 @@ cd data/
 
 	#Display input options
 echo "
-Choose an option by entering its number located in brackets [n]
+Choose an option by entering its reference seen in the brackets [n].
 [l] Change list layout
 [i] Display video info
 [b] Go Back
