@@ -9,11 +9,22 @@ There are two methods to install ytscrape.
 
 - 1: Download ytscrape.
 
-![](images/script_install_steps/sc_1.png "Downloading the ZIP file.")
+*GitHub:*
+
+![](images/script_install_steps/sc_1.png "Downloading the ZIP file from GitHub.")
+
+*GitLab:*
+
+![](images/script_install_steps/sc_2.png "Downloading the ZIP file from GitLab.")
 
 - 2: Extract the ZIP file.
 - 3: Open the ytscrape-master folder that was extracted.
-- 4: Run the install.sh script from a terminal. (Note: If your file manager allows executing applications, try double clicking the "YTscrape Installer." instead.)
+- 4: Run the `install.sh` script from a terminal. (Note: Optionally you could double click the "YTscrape Installer" if your file manager allows for executing applications.)
+
+*Running install.sh from the terminal*
+
+![](images/script_install_steps/sc_3.png "Run install.sh.")
+
 - 5: The install script will prompt to Press any key to begin the installation.
 - 6: After the installation completes press any key to exit. YTscrape is located in /home/your_user/bin and can be invoked from a terminal.
 
@@ -48,5 +59,7 @@ Copy the contents of ytscrape-master/ytscrape/ to the previously created bin/ di
 Copy PUP to the previously created bin/ directory
 
 `cp pup ~/bin`
+
+Note: `~/bin/` will have to be included as a $PATH in your .profile. This is often included by default with most distributions. To verify if `/home/your_user/bin` is an included path, run `echo $PATH` in your terminal.
 
 Don't forget to install [mpv player](https://github.com/mpv-player/mpv/) and [youtube-dl](https://rg3.github.io/youtube-dl/) for streaming videos from YTscrape.
