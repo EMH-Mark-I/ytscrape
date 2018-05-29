@@ -8,15 +8,15 @@
 #DASH videos won't always work in mpv, so this is why the options are limited. You can add your own if you want to expand the range.
 	if [[ $quality = "180p" ]];
 	then
-		dlquality="--ytdl-format=36+139"
+		dlquality="--ytdl-format=17+160"
 			
 	elif [[ $quality = "360p" ]];
 	then
-		dlquality="--ytdl-format=18+140"
+		dlquality="--ytdl-format=18+134"
 			
 	elif [[ $quality = "720p" ]];
 	then
-		dlquality="--ytdl-format=22+140"
+		dlquality="--ytdl-format=22+136"
 
 	elif [[ $quality = "best" ]];
 	then
