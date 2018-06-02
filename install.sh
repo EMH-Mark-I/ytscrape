@@ -2,6 +2,11 @@
 
 read -s -n 1 -p "Press any key to begin..."
 
+#Set variables to make script portable.
+path=`realpath $0`
+installdir=`dirname $path`
+cd $installdir
+
 if [ -d "ytscrape_contents/" ];
 then
 	echo ""
