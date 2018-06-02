@@ -72,7 +72,7 @@ Directory location for MP3 downloads.
 
 Video quality settings.
 
-- This section contains the video streaming quality as seen from YouTube. The only options provided by YTscrape are 180p, 360p, 720p, and best. Best will always attempt to playback with the best quality possible. Note: If you use one of the other quality settings beside "best" some videos that may have not been uploaded in the selected quality can result in not loading. If you insert  a streaming quality option that isn't provided or is incorrect, YTscrape will display a warning that you have to fix the error.
+- This section contains the video streaming quality as seen from YouTube. The options provided through YTscrape are 144p - 180p - 240p - 360p - 720p - 720p60 - 1080p - 1080p60 - 1440p - 1440p60 - 2160p - 2160p60. If you insert a streaming quality option that isn't provided or is incorrect, YTscrape will display a warning that you have to fix the error.
 
 MPV display options.
 
