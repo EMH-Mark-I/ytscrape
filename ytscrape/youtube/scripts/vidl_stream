@@ -122,6 +122,7 @@ else
 
 	echo "QUALITY_CHECK: $quality_type exists."
 
+	#This first check is made up in case the loop above was improperly exited. This will prevent the script from continuing to attempt to load the video in that condition.
 	if [[ "$quality_check" = "true" ]];
 	then
 		vid_check=false
@@ -145,7 +146,7 @@ else
 			echo "VID_CHECK: Video extension is set for $vidtype."
 
 		else
-			echo "VID_CHECK: Error, there is no known audio extension detected for $quality_type."
+			echo "VID_CHECK: Error, there are no known video extensions detected for $quality_type."
 			echo "VID_CHECK: FAIL"
 			sleep 2s
 			read -s -n 1 -p "Press any key to exit..."
