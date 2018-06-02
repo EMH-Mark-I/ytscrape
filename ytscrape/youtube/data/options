@@ -9,7 +9,7 @@
 # Video quality settings.
 # Insert one of the following quality options seen below in the designated area.
 # 144p - 180p - 240p - 360p - 720p - 720p60 - 1080p - 1080p60 - 1440p - 1440p60 - 2160p - 2160p60
-3: 720
+3: 720p
 
 # MPV display options.
 # If you want videos to start in fullscreen, add "--fs" to the end of the string below.
