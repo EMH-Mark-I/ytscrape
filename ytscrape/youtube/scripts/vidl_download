@@ -8,6 +8,7 @@ if [ "$ans" = "q" -o "$ans" = "Q" ];
 	echo "Exit"
 
 else
+	echo "Loading video. Please wait..."
 	URL=$(grep 'URL' vidl_URL2 |
 	rev |
 	cut -d "=" -f1 |
@@ -15,13 +16,190 @@ else
 	sed "$ans q;d" |
 	sed 's|^|https://www.youtube.com/watch?v=|')
 
-	youtube-dl -f $ytquality $URL -o $vlocation
+	#List video qualities of selected video.
+	youtube-dl -F $URL > quality_list
 
-	#notify-send "YouTube-dl action is finished."
-	if [ $? -eq 0 ];
+	#Check if defined quality is available. If the defined quality is not available, then fallback onto a lower quality from the defined setting.
+	quality_check_ct=0
+	quality_check=false
+	until [ $quality_check_ct -gt 1 ]  
+	do
+		if grep -Fq $quality_type quality_list
+		then
+			((quality_check_ct++))
+			quality_check="true"
+		else
+			echo "QUALITY_CHECK: $quality_type for this video does not exist! Checking for fallback."
+
+			#Falling back to an avilable quality
+			if [[ $quality_type = "2160p60" ]];
+			then
+				quality_type="1440p60"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "2160p" ]];
+			then
+				quality_type="1440p"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "1440p60" ]];
+			then
+				quality_type="1080p60"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "1440p" ]];
+			then
+				quality_type="1080p"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "1080p60" ]];
+			then
+				quality_type="720p60"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "1080p" ]];
+			then
+				quality_type="720p"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "720p60" ]];
+			then
+				quality_type="720p"
+				audiotype="hd720"
+				audiotype2="x720"
+				audiotype3="mp4"
+
+			elif [[ $quality_type = "720p" ]];
+			then
+				quality_type="medium"
+				audiotype="medium"
+				audiotype2="x360"
+
+			elif [[ $quality_type = "360p" ]];
+			then
+				quality_type="240p"
+				audiotype="small"
+				audiotype2="x180"
+				audiotype3="3gp"
+
+			elif [[ $quality_type = "240p" ]];
+			then
+				quality_type="small"
+				audiotype="small"
+				audiotype2="x180"
+				audiotype3="3gp"
+
+			elif [[ $quality_type = "180p" ]];
+			then
+				quality_type="small"
+				audiotype="small"
+				audiotype2="x144"
+				audiotype3="3gp"
+
+			else
+				echo "QUALITY_CHECK: Error, no video qualities are available!"
+				echo "QUALITY_CHECK: FAIL"
+				read -s -n 1 -p "Press any key to continue..."
+				exit 0
+			fi
+		fi
+	done
+
+	echo "QUALITY_CHECK: $quality_type exists."
+
+	if [[ "$quality_check" = "true" ]];
 	then
-		notify-send "ytscrape: Your video finished downloading."
+		vid_check=false
+		#Check for available video extension types. MP4 is preferred.
+		if grep $quality_type quality_list | grep -Fwq mp4
+		then
+			vid_check="true"
+			vidtype="mp4"
+			echo "VID_CHECK: Video extension is set for $vidtype."
+
+		elif grep $quality_type quality_list | grep -Fwq webm
+		then
+			vid_check="true"
+			vidtype="webm"
+			echo "VID_CHECK: Video extension is set for $vidtype."
+
+		elif grep $quality_type quality_list | grep -Fwq 3gp
+		then
+			vid_check="true"
+			vidtype="3gp"
+			echo "VID_CHECK: Video extension is set for $vidtype."
+
+		else
+			echo "VID_CHECK: Error, there is no known audio extension detected for $quality_type."
+			echo "VID_CHECK: FAIL"
+			sleep 2s
+			read -s -n 1 -p "Press any key to exit..."
+		fi
+
+		#Check for quality level. 360p and below qualities can be loaded from one file (video and audio combined.) Higher qualities have separated video and audio files.
+		if [[ "$vid_check" = "true" ]];
+		then
+			low_stream=false
+			num_stream=false
+			if [[ $quality_type = "small" ]];
+			then
+				low_stream="true"
+
+			elif [[ $quality_type = "medium" ]];
+			then
+				low_stream="true"
+
+			else
+				num_stream="true"
+			fi
+
+			if [[ "$low_stream" = "true" ]];
+			then
+				echo "CHECK: PASS"
+				vquality=$(grep -w $quality_type quality_list | grep  $audiotype2 | grep -w $vidtype | cut -d' ' -f1)
+				echo "youtube-dl -f $vquality $URL -o $vlocation"
+				youtube-dl -f $vquality $URL -o $vlocation
+				if [ $? -eq 0 ];
+				then
+					notify-send "YTscrape: Your video finished downloading."
+				else
+					notify-send "YTscrape: There was an error with downloading the video."
+				fi
+				rm quality_list
+
+			elif [[ "$num_stream" = "true" ]];
+			then
+				echo "CHECK: PASS"
+				vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1)
+				aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1)
+				echo "youtube-dl -f $vquality+$aquality $URL -o $vlocation"
+				youtube-dl -f $vquality+$aquality $URL -o $vlocation
+				if [ $? -eq 0 ];
+				then
+					notify-send "YTscrape: Your video finished downloading."
+				else
+					notify-send "YTscrape: There was an error while downloading the video."
+				fi
+				rm quality_list
+			fi
+		fi
 	else
-		notify-send "ytscrape: There was an error with downloading the video."
+		#This shouldn't be needed, but it's here just in case.
+		echo "QUALITY_CHECK: Error, improper loop exit on false value."	
+		echo "QUALITY_CHECK: FAIL"
+		sleep 2s
+		read -s -n 1 -p "Press any key to exit..."
 	fi
 fi

@@ -19,8 +19,8 @@ else
 
 	if [ $? -eq 0 ];
 	then
-		notify-send "ytscrape: Your mp3 file finished downloading."
+		notify-send "YTscrape: Your mp3 file finished downloading."
 	else
-		notify-send "ytscrape: There was an error with downloading the mp3 file."
+		notify-send "YTscrape: There was an error while downloading the mp3 file."
 	fi
 fi

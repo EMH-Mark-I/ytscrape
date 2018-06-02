@@ -4,40 +4,109 @@
 	mlocation=$(cat options | grep "2:" | sed 's/2: //')
 	quality=$(cat options | grep "3:" | sed 's/3: //')
 
+#Setup loop for user input.
+while true; do
+	clear
+
 #Pseudo loop for detecting variable $quality data. It will exit the script if it detects an invalid pattern.
 #DASH videos won't always work in mpv, so this is why the options are limited. You can add your own if you want to expand the range.
-	if [[ $quality = "180p" ]];
+	if [[ $quality = "144p" ]];
 	then
-		dlquality="--ytdl-format=17+160"
-			
+		quality_type="small"
+		audiotype="small"
+		audiotype2="x144"
+		audiotype3="3gp"
+
+	elif [[ $quality = "180p" ]];
+	then
+		quality_type="small"
+		audiotype="small"
+		audiotype2="x180"
+		audiotype3="3gp"
+
+	elif [[ $quality = "240p" ]];
+	then
+		quality_type="240p"
+		audiotype="small"
+		audiotype2="x180"
+		audiotype3="3gp"
+
 	elif [[ $quality = "360p" ]];
 	then
-		dlquality="--ytdl-format=18+134"
-			
+		quality_type="medium"
+		audiotype="medium"
+		audiotype2="x360"
+		audiotype3="mp4"
+
 	elif [[ $quality = "720p" ]];
 	then
-		dlquality="--ytdl-format=22+136"
+		quality_type="720p"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
 
-	elif [[ $quality = "best" ]];
+	elif [[ $quality = "720p60" ]];
 	then
-		dlquality="--ytdl-format=best"
-		
+		quality_type="720p60"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "1080p" ]];
+	then
+		quality_type="1080p"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "1080p60" ]];
+	then
+		quality_type="1080p60"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "1440p" ]];
+	then
+		quality_type="1440p"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "1440p60" ]];
+	then
+		quality_type="1440p60"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "2160p" ]];
+	then
+		quality_type="2160p"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
+	elif [[ $quality = "2160p60" ]];
+	then
+		quality_type="2160p60"
+		audiotype="hd720"
+		audiotype2="x720"
+		audiotype3="mp4"
+
 	else
-		echo "Invalid option in streaming quality settings!"
+		echo "ERROR: Invalid option detected in streaming quality settings!"
 		sleep 2s
 		echo "Please insert a valid option.
 		"
 		sleep 2s
-		nano +10 options
+		read -s -n 1 -p "Press any key to continue..."
+		nano +12 options
 		exit 0
 	fi
 
+cat list timestamp
 ytquality=$(echo $dlquality | cut -d= -f2)
-
-#Setup loop for user input.
-while true; do
-	clear
-	cat list timestamp
 
 #Display input options
 echo "
