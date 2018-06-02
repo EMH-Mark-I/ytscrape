@@ -144,7 +144,7 @@ Note: These will not include many of the errors seen from youtube-dl or mpv, but
     If you installed youtube-dl by pip, run in a new terminal `sudo pip install --upgrade youtube_dl`.
     If you installed youtube-dl by your package manager, check to see if there are pending updates to be made to your system which might include an update for youtube-dl.
 
-- `QUALITY_CHECK: Error, improper loop exit on false value`: This will occur if the script was interrupted during the fallback process of verifying supported video qualities. To prevent this, allow some time for the script to finish it's process unless you are just trying to exit.
+- `QUALITY_CHECK: Error, improper loop exit on false value`: This will occur if the script was interrupted during the fallback process of verifying supported video qualities. To prevent this, allow some time for the script to finish its process unless you are just trying to exit.
 - `QUALITY_CHECK: FAIL`: This error indicates that the quality check process failed.
 - `VID_CHECK: Error, there are no known video extensions detected for $quality_type`: This will occur if the script was unable to find a video extension to stream or download. Video extensions supported are MP4, webm, and 3gp. MP4 is the default selection unless it doesn't exist. Webm is secondary and 3gp is the final choice the script will fallback to. If none of these extension types exist, that's when the error will occur.
 - `VID_CHECK: FAIL`: This error indicates that the vid check process failed.
