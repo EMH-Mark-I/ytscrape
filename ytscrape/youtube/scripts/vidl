@@ -101,12 +101,11 @@ while true; do
 		"
 		sleep 2s
 		read -s -n 1 -p "Press any key to continue..."
-		nano +12 options
+		editor +12 options
 		exit 0
 	fi
 
 cat list timestamp
-ytquality=$(echo $dlquality | cut -d= -f2)
 
 #Display input options
 echo "
@@ -153,7 +152,7 @@ then
 		echo "Exit"
 	else
 		clear
-		URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://hooktube.com/watch?v=|')
+		URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$ans q;d" | sed 's|^|https://youtube.com/watch?v=|')
 		xdg-open $URL &>/dev/null & disown
 	fi
 fi
@@ -161,7 +160,7 @@ fi
 #Change list layout
 if test "$ans2" = "l" ;
 then
-	nano options3
+	editor options3
 	#Grep for time info
 	bash options2
 	#Organize layout by time.
@@ -179,7 +178,7 @@ fi
 #Options
 if test "$ans2" = "o" ;
 then
-	nano options
+	editor options
 	clear
 	echo "Reloading settings."
 	sleep 2s

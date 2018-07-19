@@ -90,7 +90,7 @@ else
 				audiotype="medium"
 				audiotype2="x360"
 
-			elif [[ $quality_type = "360p" ]];
+			elif [[ $quality_type = "medium" ]];
 			then
 				quality_type="240p"
 				audiotype="small"
@@ -102,13 +102,6 @@ else
 				quality_type="small"
 				audiotype="small"
 				audiotype2="x180"
-				audiotype3="3gp"
-
-			elif [[ $quality_type = "180p" ]];
-			then
-				quality_type="small"
-				audiotype="small"
-				audiotype2="x144"
 				audiotype3="3gp"
 
 			else

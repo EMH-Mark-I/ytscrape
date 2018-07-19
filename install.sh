@@ -28,15 +28,14 @@ fi
 	fi
 
 	unzip pup_v0.4.0_linux_* &&
-	mkdir -p ~/bin/ &&
-	cp pup ~/bin &&
+	mkdir -p ~/.local/bin/ &&
+	cp pup ~/.local/bin &&
 	cd .. &&
-	cp -R ytscrape/* ~/bin &&
+	cp -R ytscrape/* ~/.local/bin &&
 	rm -rf ytscrape_contents/
-#	cat misc/path >> ~/.profile
-#	source ~/.bashrc
 	echo ""
 	echo "Don't forget to install mpv player and youtube-dl!"
 	read -s -n 1 -p "Install complete. Press any key to exit..."
+	echo ""
 	clear
 exit 0
