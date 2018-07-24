@@ -26,7 +26,7 @@ There are two methods to install ytscrape.
 ![](images/script_install_steps/sc_3.png "Run install.sh.")
 
 - 5: The install script will prompt to Press any key to begin the installation.
-- 6: After the installation completes press any key to exit. YTscrape is located in /home/your_user/bin and can be invoked from a terminal.
+- 6: After the installation completes press any key to exit. YTscrape is located in /home/your_user/.local/bin and can be invoked from a terminal.
 
 Don't forget to install [mpv player](https://github.com/mpv-player/mpv/) and [youtube-dl](https://rg3.github.io/youtube-dl/) for streaming videos from YTscrape.
 
@@ -42,24 +42,24 @@ Download PUP:
 
 Unzip ytscrape:
 
-`unzip master.zip`
+`unzip ytscrape-master.zip`
 
 Unzip PUP:
 
 `unzip pup_v0.4.0_linux_amd64.zip`
 
-Make a bin/ directory in /home/your_user/
+Make a bin/ directory in /home/your_user/.local/
 
-`mkdir -p ~/bin/`
+`mkdir -p ~/.local/bin/`
 
 Copy the contents of ytscrape-master/ytscrape/ to the previously created bin/ directory
 
-`cp -R ytscrape-master/ytscrape/* ~/bin`
+`cp -R ytscrape-master/ytscrape/* ~/.local/bin`
 
 Copy PUP to the previously created bin/ directory
 
-`cp pup ~/bin`
+`cp pup ~/.local/bin`
 
-Note: `~/bin/` will have to be included as a $PATH in your .profile. This is often included by default with most distributions. To verify if `/home/your_user/bin` is an included path, run `echo $PATH` in your terminal.
+Note: `~/.local/bin/` will have to be included as a $PATH in your .profile. This is often included by default with most distributions. To verify if `/home/your_user/bin` is an included path, run `echo $PATH` in your terminal.
 
 Don't forget to install [mpv player](https://github.com/mpv-player/mpv/) and [youtube-dl](https://rg3.github.io/youtube-dl/) for streaming videos from YTscrape.

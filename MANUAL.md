@@ -51,11 +51,6 @@ Note: There are already two example channels included. You can clear these out w
 
 You will see a list as seen above in the image. Adjusting list layouts will be done in the nano text editor. You can re-organize the list and comment out items that you don't want to see by inserting "#" in front of the desired line. Don't remove any of the lines and try not to edit them unless you know what you're doing.
 
-If you wish to change the text editor used, you can modify the following files.
-
-- ~/bin/ytscrape; replace all instances of "nano" with your preferred text editor.
-- ~/bin/youtube/scripts/vidl; replace all instances of "nano" with your preferred text editor.
-
 ---
 <a name="options"/>
 #### Adjusting youtube-dl streaming options
