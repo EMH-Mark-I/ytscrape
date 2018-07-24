@@ -42,7 +42,7 @@ Download PUP:
 
 Unzip ytscrape:
 
-`unzip ytscrape-master.zip`
+`unzip master.zip`
 
 Unzip PUP:
 
