@@ -178,6 +178,11 @@ else
 				echo "CHECK: PASS"
 				vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1)
 				aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1)
+				#Test if aquality is empty
+				if [[ -z "$aquality" ]]; then
+					#Since the value is empty lets default to something or else youtube-dl will exit
+					aquality=bestaudio/best
+				fi
 				echo "youtube-dl -f $vquality+$aquality $URL -o $vlocation"
 				youtube-dl -f $vquality+$aquality $URL -o $vlocation
 				if [ $? -eq 0 ];
