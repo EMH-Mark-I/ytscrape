@@ -1,58 +1,436 @@
 #!/bin/bash
 
 #Set variables to make script portable.
-	path=`realpath $0`
-	installdir=`dirname $path`
+path=`realpath $0`
+installdir=`dirname $path`
 
-#Setup loop for user input.
-	while true; do
-	cd $installdir/youtube/
-	clear
+update (){
+	printf "Fetching channels. Wait until the process is finished.\n"
 
-#Display input options
-echo "Choose an option by entering its reference seen in the brackets [n].
+	#Clean out any files in the store directory.
+	rm store/* 2>/dev/null
 
-[1] Update list
-[2] View list
-[3] View list in spreadsheet
-[4] YouTube-dl
-[c] Add / Remove channels
-[l] Change list layout
-[R] Reset ytscrape options to default
-[h] Help
-[q] Quit
-"
-	read -p "Enter an option: " ans
+	#Fix bad URLs
+	sed -i 's|?disable_polymer=1||' channels
 
-#Update list
-if test "$ans" = "1" ;
-then
-	bash scripts/update
-fi
+	#Download the channel info.
+	wget -i channels -P store
 
-#View list
-if test "$ans" = "2" ;
-then
-cd data/
+	#Clean out old info.
+	cd data/ 2>/dev/null
+	rm masterlist 2>/dev/null
+	rm list.ods 2>/dev/null
+	rm list 2>/dev/null
+	rm vidl_URL2 2>/dev/null
+	rm timestamp 2>/dev/null
+
+	#Setup data files for the first "video" file since it won't be specified with a number, unlike the rest.
+	#Channel Name
+	cat ../store/videos |
+	pup 'title text{}' |
+	sed 's|^  ||g' |
+	sed 's| - YouTube||' |
+	sed '/^\s*$/d' |
+	awk -v len=20 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > names
+
+	#Video titles
+	cat ../store/videos |
+	pup 'li' | pup 'h3' |
+	pup 'a attr{title}' |
+	char_ref_alt |
+	awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > store_titles
+
+	#Video URLs
+	cat ../store/videos |
+	pup 'li' | pup 'h3' |
+	pup 'a attr{href}' |
+	cut -d= -f2 |
+	sed 's/ rel//g' |
+	sed 's/^/=/g' |
+	sed 's|$|"|g' > store_URL
+
+	#Video dates
+	cat ../store/videos |
+	pup 'li' |
+	pup 'ul.yt-lockup-meta-info' |
+	pup 'li text{}' |
+	sed '/^\s*$/d' |
+	sed 's|^  ||g' |
+	grep -v view > store_views
+
+	names=$(cat names |
+	sed '/^$/d')
+
+	#Combining the channel name with the URL, or else the channel name will be displayed only once in the list if it were simply pasted into the spreadsheet.
+	sed -i "s/$/\t/g; s/$/$names/g" store_URL
+	paste store_URL store_titles store_views > masterlist
+	rm store_titles store_URL store_views names
+
+	#Setup data files to organize the remaining information from the "video" files in a loop. Channellist variable obtains the line count of channels and subtracts "1" from the output since the first channel in the list is already processed from the previous commands. 
+	channellist=$(wc -l ../channels |
+	cut -d" " -f1 |
+	sed 's/$/-1/' | bc)
+	counter=1
+	while [ $counter -le $channellist ]
+	do
+		videos=videos.$counter
+
+		#Channel Name
+		cat ../store/$videos |
+		pup 'title text{}' |
+		sed 's|^  ||g' |
+		sed 's| - YouTube||' |
+		sed '/^\s*$/d' |
+		awk -v len=20 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > names2
+
+		#Video titles
+		cat ../store/$videos |
+		pup 'li' | pup 'h3' |
+		pup 'a attr{title}' |
+		char_ref_alt |
+		awk -v len=40 '{ if (length($0) > len) print substr($0, 1, len-3) "..."; else print; }' > store_titles
+
+		#Video URLs
+		cat ../store/$videos |
+		pup 'li' |
+		pup 'h3' |
+		pup 'a attr{href}' |
+		cut -d= -f2 |
+		sed 's/ rel//g' |
+		sed 's/^/=/g' |
+		sed 's|$|"|g' >> store_URL
+
+		#Video dates
+		cat ../store/$videos |
+		pup 'li' |
+		pup 'ul.yt-lockup-meta-info' |
+		pup 'li text{}' |
+		sed '/^\s*$/d' |
+		sed 's|^  ||g' |
+		grep -v view > store_views
+
+		names2=$(cat names2 |
+		sed '/^$/d')
+
+		#Combining the channel name with the URL, or else the channel name will be displayed only once in the list if it were simply pasted into the spreadsheet.
+		sed -i "s/$/\t/g; s/$/$names2/g" store_URL
+		paste store_URL store_titles store_views >> masterlist
+		rm store_titles store_URL store_views names2
+
+		((counter++))
+	done
+
+	#Inserting numbers sequentially in front of URL addresses. These will be used as ID numbers for specifying a video with mpv and youtube-dl in the vidl script. 
+	awk '{ print FNR "-URL" $0 }' masterlist > masterlist2
+	rm masterlist
+	mv masterlist2 masterlist
+
+	#Storing URL field back into a seperate file now that it's numbered. This will keep it seperate from the following organizing commands. It will be used in vidl.
+	paste masterlist | cut -d'"' -f1 | sed 's/$/\t/g' > vidl_URL2
+
+	#Grep for time info
+	bash options2
+
+	#Organize layout by time.
+	bash options3
+
+	#Build list
+	bash options4
+
+	#Show column descriptions	
+	sed -i '1i [URL] \t [Channel] \t [Title] \t\t [Date]' masterlist
+
+	#Show a timestamp.
+	printf "\n[This list was updated on `date +"%D_%r"`]" > timestamp
+
+	#Print information to screen.
+	#clear
+	echo "Fetch complete\n"
+	#cat list timestamp
+
+	#Cleanup
+	rm second seconds 2>/dev/null
+	rm minute minutes 2>/dev/null
+	rm hour hours 2>/dev/null
+	rm day days 2>/dev/null
+	rm week weeks 2>/dev/null
+	rm month months 2>/dev/null
+	rm year years 2>/dev/null
+	rm users views URL URL2 titles vidl_URL bldlist top 2>/dev/null
+	rm ../store/*
+
+	#Prompt for input to end script and return back to the initial ytscrape loop.
+	#read -s -n 1 -p "Press any key to continue..."
+}
+char_ref (){
+	# This is a XML and HTML character reference list. It's by far complete.
+
+	sed 's/%21/!/g' |	# !
+	sed 's/%3A/:/g' |	# :
+	sed 's/%3F/?/g' |	# ?
+	sed 's/%3D/=/g'|	# =
+	sed 's|%2F|/|g' |	# /
+	sed 's/%26/\&/g' |	# &
+	sed 's/\&amp;/\&/g' |	# &
+	sed 's/\&quot;/"/g' |	# "
+	sed 's/\&#34;/"/g' |	# "
+	sed "s/\&#39;/'/g" |	# '
+	sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢|'|g" |	# '
+	sed "s|ÃƒÆ’Ã‚Â©|é|g" |	# é
+	sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âª||g" |	# (Nothing)
+	sed 's/%2520/ /g' |	# (inserts space)
+	sed 's/%23/#/g' |	# #
+	sed "s|â€œ|“|g" |	# “
+	sed "s|â€�|“|g" |	# ”
+	sed "s|â€™|'|g"		# '
+}
+char_ref_alt (){
+	# This is a XML and HTML character reference list for the update script. It's by far complete.
+
+	sed 's/%21/!/g' |	# !
+	sed 's/%3A/:/g' |	# :
+	sed 's/%3F/?/g' |	# ?
+	sed 's/%3D/=/g'|	# =
+	sed 's|%2F|/|g' |	# /
+	sed 's/%26/\&/g' |	# &
+	sed 's/\&amp;/\&/g' |	# &
+	sed 's/\&quot;//g' |	# (Nothing)
+	sed 's/\&#34;//g' |	# (Nothing)
+	sed "s/\&#39;/'/g" |	# '
+	sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢|'|g" |	# '
+	sed "s|ÃƒÆ’Ã‚Â©|é|g" |	# é
+	sed "s|ÃƒÂ¢Ã¢â€šÂ¬Ã‚Âª||g" |	# (Nothing)
+	sed '/^\s*$/d' |	# (Remove empty lines)
+	sed 's/%2520/ /g' |	# (inserts space)
+	sed 's/%23/#/g' |	# #
+	sed "s|â€œ|“|g"|	# “
+	sed "s|â€�|“|g"	# ”
+}
+vidinfo (){
+	# Build video info
+	read -p "Input the number of a URL from the list:	" INFO
+
+	#Check answer
+	if [ "$INFO" = "q" -o "$INFO" = "Q" ];
+		then
+		echo "Exit"
+	else
+		clear
+		URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$INFO q;d" | sed 's|^|https://www.youtube.com/watch?v=|') &&
+		cd ../store &&
+		wget -O $INFO-info_file $URL &&
+		clear
+		echo "[$INFO-URL]" > ../data/$INFO-info_file
+
+		# Fetch channel name
+		cat $INFO-info_file |
+		pup 'div.yt-user-info text{}' |
+		sed '/^\s*$/d' |
+		sed 's|^    ||g' |
+		sed 's|^|[Channel: |g' |
+		sed 's|$|]|g' >> ../data/$INFO-info_file
+
+		# Fetch title of video
+		cat $INFO-info_file |
+		pup 'title text{}' |
+		sed '/^\s*$/d' |
+		sed 's| - YouTube||' |
+		sed '/^\s*$/d' |
+		sed 's|^|[Title: |g' |
+		sed 's|$|]|g' |
+		char_ref >> ../data/$INFO-info_file
+
+		# Fetch view count of video
+		cat $INFO-info_file |
+		pup 'div.watch-view-count text{}' |
+		sed 's| views||g' |
+		sed 's|^|[Views: |g' |
+		sed 's|$|]\n|g' >> ../data/$INFO-info_file
+
+		# Fetch description of video
+		grep "eow-description" $INFO-info_file |
+		sed 's|.*eow-description" class="" >||g' |
+		sed 's|</div>  <div id="watch-description-extras">||g' |
+		sed 's|<br />|\n|g' |
+		sed 's|<br>|\n|g' |
+		sed "s|</a>||g" |
+		sed "s|</p>||g" |
+		sed 's|nofollow.*||g' |
+		sed 's|" data-sessionlink.*...||g'|
+		sed 's|<a href.*https|https|g' |
+		sed 's|<a href.*http|http|g' |
+		sed 's|&amp.*||g' |
+		sed 's|" class.*||g' |
+		sed 's|" target.*||g' |
+		sed 's|" rel.*||g' |
+		sed 's|<a href.*false;">||g' |
+		pup text{} |
+		char_ref >> ../data/$INFO-info_file
+
+		# Display output in less viewer
+		less ../data/$INFO-info_file
+		rm $INFO-info_file ../data/$INFO-info_file
+	fi
+}
+vidl (){
+	#Move to data/ directory and set variables.
+	cd data/
+	vlocation=$(cat options | grep "1:" | sed 's/1: //')
+	mlocation=$(cat options | grep "2:" | sed 's/2: //')
+	quality=$(cat options | grep "3:" | sed 's/3: //')
 
 	#Setup loop for user input.
 	while true; do
-	clear
+		clear
+
+		#Pseudo loop for detecting variable $quality data. It will exit the script if it detects an invalid pattern.
+		#DASH videos won't always work in mpv, so this is why the options are limited. You can add your own if you want to expand the range.
+		if [[ $quality = "144p" ]];
+		then
+			quality_type="small"
+			audiotype="small"
+			audiotype2="x144"
+			audiotype3="3gp"
+
+		elif [[ $quality = "180p" ]];
+		then
+			quality_type="small"
+			audiotype="small"
+			audiotype2="x180"
+			audiotype3="3gp"
+
+		elif [[ $quality = "240p" ]];
+		then
+			quality_type="240p"
+			audiotype="small"
+			audiotype2="x180"
+			audiotype3="3gp"
+
+		elif [[ $quality = "360p" ]];
+		then
+			quality_type="medium"
+			audiotype="medium"
+			audiotype2="x360"
+			audiotype3="mp4"
+
+		elif [[ $quality = "720p" ]];
+		then
+			quality_type="720p"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "720p60" ]];
+		then
+			quality_type="720p60"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "1080p" ]];
+		then
+			quality_type="1080p"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "1080p60" ]];
+		then
+			quality_type="1080p60"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "1440p" ]];
+		then
+			quality_type="1440p"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "1440p60" ]];
+		then
+			quality_type="1440p60"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "2160p" ]];
+		then
+			quality_type="2160p"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		elif [[ $quality = "2160p60" ]];
+		then
+			quality_type="2160p60"
+			audiotype="hd720"
+			#audiotype2="x720"
+			audiotype2="1280x"
+			audiotype3="mp4"
+
+		else
+			echo "ERROR: Invalid option detected in streaming quality settings!"
+			sleep 2s
+			printf "Please insert a valid option.\n"
+			sleep 2s
+			read -s -n 1 -p "Press any key to continue..."
+			editor +12 options
+			break
+		fi
+
 	cat list timestamp
 
 	#Display input options
-echo "
-Choose an option by entering its reference seen in the brackets [n].
-[l] Change list layout
-[i] Display video info
-[b] Go Back
-"
-	read -p "Enter an option: " ans2
+	printf "\n\nChoose an option by entering its reference seen in the brackets [n]:\n\n[1] Download video\n[2] Stream video now\n[3] Download as MP3\n[4] Open video in browser\n[l] Change list layout\n[i] Display video info\n[o] Options\n[b] Back\n\n"
+	read -p "Enter an option: " VID_OPT
+
+	#Download video
+	if test "$VID_OPT" = "1" ;
+	then
+		vidl_download
+	fi
+
+	#Stream video
+	if test "$VID_OPT" = "2" ;
+	then
+		vidl_stream
+	fi
+
+	#Download as MP3
+	if test "$VID_OPT" = "3" ;
+	then
+		vidl_mp3
+	fi
+
+	#Open video in browser
+	if test "$VID_OPT" = "4" ;
+	then
+		read -p "Input the URL reference number seen from the list:	" ans
+
+		#Check answer
+		if [ "$SUB_VID_OPT" = "q" -o "$SUB_VID_OPT" = "Q" ];
+		then
+			echo "Exit"
+		else
+			clear
+			URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$SUB_VID_OPT q;d" | sed 's|^|https://youtube.com/watch?v=|')
+			xdg-open $URL &>/dev/null & disown
+		fi
+	fi
 
 	#Change list layout
-	if test "$ans2" = "l" ;
+	if test "$VID_OPT" = "l" ;
 	then
-		nano options3
+		editor options3
 		#Grep for time info
 		bash options2
 		#Organize layout by time.
@@ -62,100 +440,627 @@ Choose an option by entering its reference seen in the brackets [n].
 	fi
 
 	#Display video info
-	if test "$ans2" = "i" ;
+	if test "$VID_OPT" = "i" ;
 	then
 		bash ../scripts/vidinfo
 	fi
 
-	#Go Back
-	if test "$ans2" = "b" ;
+	#Options
+	if test "$VID_OPT" = "o" ;
+	then
+		editor options
+		clear
+		echo "Reloading settings."
+		sleep 2s
+		break
+	fi
+
+	#Back
+	if test "$VID_OPT" = "b" ;
 	then
 		break
 	fi
+
 	done
-fi
-
-#View list in spread sheet.
-if test "$ans" = "3" ;
-then
-cd data/
-	#Grep for time info
-	bash options2
-
-	#Organize layout by time.
-	bash options3
-
-	#Build list
-	bash options4
-	localc list.ods
-fi
-
-#YouTube-dl
-if test "$ans" = "4" ;
-then
-	bash scripts/vidl
-fi
-
-#Add / Remove channels
-if test "$ans" = "c" ;
-then
-	nano channels
-fi
-
-#Change list layout
-if test "$ans" = "l" ;
-then
-	cd data/
-	nano options3
-	#Grep for time info
-	bash options2
-	#Organize layout by time.
-	bash options3
-	#Build list
-	bash options4
-fi
-
-#Reset
-if [ "$ans" = "R" -o "$ans" = "r" ];
-then
+}
+vidl_mp3 (){
+	# Download video as mp3
+	read -p "Input the number of a URL from the list:	" ans
 	clear
-	echo "Are you sure?
-This will reset your download locations, quality settings, and list asortment."
 
-	read -p "y(YES)/n(NO): " ans2
-	
-	# If YES
-	if [ "$ans2" = "Y" -o "$ans2" = "y" -o "$ans2" = "yes" -o "$ans2" = "YES" ];
+	#Check answer
+	if [ "$ans" = "q" -o "$ans" = "Q" ];
 	then
-	echo "Resetting ytscrape options."
-	cd data/ &&
-	rm options* 
-	cp reset/* .
-	#Grep for time info
-	bash options2
-	#Organize layout by time.
-	bash options3
-	#Build list
-	bash options4
-	#Prompt for input to end script and return back to the initial ytscrape loop.
-	read -s -n 1 -p "Reset complete. Press any key to continue..."
+		echo "Exit"
+
+	else
+		URL=$(grep 'URL' vidl_URL2 |
+		rev |
+		cut -d "=" -f1 |
+		rev |
+		sed "$ans q;d" |
+		sed 's|^|https://www.youtube.com/watch?v=|')
+
+		youtube-dl --extract-audio --audio-format mp3 $URL -o $mlocation
+
+		if [ $? -eq 0 ];
+		then
+			notify-send "YTscrape: Your mp3 file finished downloading."
+		else
+			notify-send "YTscrape: There was an error while downloading the mp3 file."
+		fi
 	fi
-	
+}
+vidl_download () {
+	# Download video with youtube-dl
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+
+	#Check answer
+	if [ "$ans" = "q" -o "$ans" = "Q" ];
+		then
+		echo "Exit"
+
+	else
+		echo "Loading video. Please wait..."
+		URL=$(grep 'URL' vidl_URL2 |
+		rev |
+		cut -d "=" -f1 |
+		rev |
+		sed "$ans q;d" |
+		sed 's|^|https://www.youtube.com/watch?v=|')
+
+		#List video qualities of selected video.
+		youtube-dl -F $URL > quality_list
+
+		#Check if defined quality is available. If the defined quality is not available, then fallback onto a lower quality from the defined setting.
+		quality_check_ct=0
+		quality_check=false
+		until [ $quality_check_ct -gt 1 ]  
+		do
+			if grep -Fq $quality_type quality_list
+			then
+				((quality_check_ct++))
+				quality_check="true"
+			else
+				echo "QUALITY_CHECK: $quality_type for this video does not exist! Checking for fallback."
+
+				#Falling back to an avilable quality
+				if [[ $quality_type = "2160p60" ]];
+				then
+					quality_type="1440p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "2160p" ]];
+				then
+					quality_type="1440p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1440p60" ]];
+				then
+					quality_type="1080p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1440p" ]];
+				then
+					quality_type="1080p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1080p60" ]];
+				then
+					quality_type="720p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1080p" ]];
+				then
+					quality_type="720p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "720p60" ]];
+				then
+					quality_type="720p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "720p" ]];
+				then
+					quality_type="medium"
+					audiotype="medium"
+					audiotype2="x360"
+
+				elif [[ $quality_type = "medium" ]];
+				then
+					quality_type="240p"
+					audiotype="small"
+					audiotype2="x180"
+					audiotype3="3gp"
+
+				elif [[ $quality_type = "240p" ]];
+				then
+					quality_type="small"
+					audiotype="small"
+					audiotype2="x180"
+					audiotype3="3gp"
+
+				else
+					echo "QUALITY_CHECK: Error, no video qualities are available!"
+					echo "QUALITY_CHECK: FAIL"
+					read -s -n 1 -p "Press any key to continue..."
+					break
+				fi
+			fi
+		done
+
+		#This first check is made up in case the loop above was improperly exited. This will prevent the script from continuing to attempt to load the video in that condition.
+		if [[ "$quality_check" = "true" ]];
+		then
+			echo "QUALITY_CHECK: $quality_type exists."
+			vid_check=false
+			#Check for available video extension types. MP4 is preferred.
+			if grep $quality_type quality_list | grep -Fwq mp4
+			then
+				vid_check="true"
+				vidtype="mp4"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			elif grep $quality_type quality_list | grep -Fwq webm
+			then
+				vid_check="true"
+				vidtype="webm"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			elif grep $quality_type quality_list | grep -Fwq 3gp
+			then
+				vid_check="true"
+				vidtype="3gp"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			else
+				echo "VID_CHECK: Error, there are no known video extensions detected for $quality_type."
+				echo "VID_CHECK: FAIL"
+				sleep 2s
+				read -s -n 1 -p "Press any key to exit..."
+			fi
+
+			#Check for quality level. 360p and below qualities can be loaded from one file (video and audio combined.) Higher qualities have separated video and audio files.
+			if [[ "$vid_check" = "true" ]];
+			then
+					low_stream=false
+					num_stream=false
+					if [[ $quality_type = "small" ]];
+					then
+						low_stream="true"
+
+					elif [[ $quality_type = "medium" ]];
+					then
+						low_stream="true"
+
+					else
+						num_stream="true"
+					fi
+
+					if [[ "$low_stream" = "true" ]];
+					then
+						echo "CHECK: PASS"
+						vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
+						echo "youtube-dl -f $vquality $URL -o $vlocation"
+						youtube-dl -f $vquality $URL -o $vlocation
+						if [ $? -eq 0 ];
+						then
+							notify-send "YTscrape: Your video finished downloading."
+						else
+							notify-send "YTscrape: There was an error with downloading the video."
+						fi
+						rm quality_list
+
+					elif [[ "$num_stream" = "true" ]];
+					then
+						echo "CHECK: PASS"
+						vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
+						aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1 | tail -n1)
+						#Test if aquality is empty
+						if [[ -z "$aquality" ]]; then
+							#Since the value is empty lets default to something or else youtube-dl will exit
+							aquality=bestaudio/best
+						fi
+						echo "youtube-dl -f $vquality+$aquality $URL -o $vlocation"
+						youtube-dl -f $vquality+$aquality $URL -o $vlocation
+						if [ $? -eq 0 ];
+						then
+							notify-send "YTscrape: Your video finished downloading."
+						else
+							notify-send "YTscrape: There was an error while downloading the video."
+						fi
+						rm quality_list
+					fi
+				fi
+		else
+			#This shouldn't be needed, but it's here just in case.
+			#echo "QUALITY_CHECK: Error, improper loop exit on false value."	
+			#echo "QUALITY_CHECK: FAIL"
+			#sleep 2s
+			#read -s -n 1 -p "Press any key to exit..."
+			echo ""
+		fi
+	fi
+}
+vidl_stream () {
+	# Stream video with mpv
+	read -p "Input the number of a URL from the list:	" ans
+	clear
+
+	#Check answer
+	if [ "$ans" = "q" -o "$ans" = "Q" ];
+		then
+		echo "Exit"
+
+	else
+		echo "Loading video. Please wait..."
+		URL=$(grep 'URL' vidl_URL2 |
+		rev |
+		cut -d "=" -f1 |
+		rev |
+		sed "$ans q;d" |
+		sed 's|^|https://www.youtube.com/watch?v=|')
+		display=$(cat options |
+		grep "4:" |
+		sed 's/4: //')
+
+		#List video qualities of selected video.
+		youtube-dl -F $URL > quality_list
+
+		#Check if defined quality is available. If the defined quality is not available, then fallback onto a lower quality from the defined setting.
+		quality_check_ct=0
+		quality_check=false
+		until [ $quality_check_ct -gt 1 ]  
+		do
+			if grep -Fq $quality_type quality_list
+			then
+				((quality_check_ct++))
+				quality_check="true"
+			else
+				echo "QUALITY_CHECK: $quality_type for this video does not exist! Checking for fallback."
+
+				#Falling back to an avilable quality
+				if [[ $quality_type = "2160p60" ]];
+				then
+					quality_type="1440p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "2160p" ]];
+				then
+					quality_type="1440p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1440p60" ]];
+				then
+					quality_type="1080p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1440p" ]];
+				then
+					quality_type="1080p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1080p60" ]];
+				then
+					quality_type="720p60"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "1080p" ]];
+				then
+					quality_type="720p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "720p60" ]];
+				then
+					quality_type="720p"
+					audiotype="hd720"
+					audiotype2="x720"
+					audiotype3="mp4"
+
+				elif [[ $quality_type = "720p" ]];
+				then
+					quality_type="medium"
+					audiotype="medium"
+					audiotype2="x360"
+
+				elif [[ $quality_type = "medium" ]];
+				then
+					quality_type="240p"
+					audiotype="small"
+					audiotype2="x180"
+					audiotype3="3gp"
+
+				elif [[ $quality_type = "240p" ]];
+				then
+					quality_type="small"
+					audiotype="small"
+					audiotype2="x180"
+					audiotype3="3gp"
+
+				else
+					echo "QUALITY_CHECK: Error, no video qualities are available!"
+					echo "QUALITY_CHECK: FAIL"
+					read -s -n 1 -p "Press any key to continue..."
+					break
+				fi
+			fi
+		done
+
+		#This first check is made up in case the loop above was improperly exited. This will prevent the script from continuing to attempt to load the video in that condition.
+		if [[ "$quality_check" = "true" ]];
+		then
+			echo "QUALITY_CHECK: $quality_type exists."
+			vid_check=false
+			#Check for available video extension types. MP4 is preferred.
+			if grep $quality_type quality_list | grep -Fwq mp4
+			then
+				vid_check="true"
+				vidtype="mp4"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			elif grep $quality_type quality_list | grep -Fwq webm
+			then
+				vid_check="true"
+				vidtype="webm"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			elif grep $quality_type quality_list | grep -Fwq 3gp
+			then
+				vid_check="true"
+				vidtype="3gp"
+				echo "VID_CHECK: Video extension is set for $vidtype."
+
+			else
+				echo "VID_CHECK: Error, there are no known video extensions detected for $quality_type."
+				echo "VID_CHECK: FAIL"
+				sleep 2s
+				read -s -n 1 -p "Press any key to exit..."
+			fi
+
+			#Check for quality level. 360p and below qualities can be loaded from one file (video and audio combined.) Higher qualities have separated video and audio files.
+			if [[ "$vid_check" = "true" ]];
+			then
+				low_stream=false
+				num_stream=false
+				if [[ $quality_type = "small" ]];
+				then
+					low_stream="true"
+
+				elif [[ $quality_type = "medium" ]];
+				then
+					low_stream="true"
+
+				else
+					num_stream="true"
+				fi
+
+				if [[ "$low_stream" = "true" ]];
+				then
+					echo "CHECK: PASS"
+					vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
+					echo "mpv $display --ytdl-format=$vquality $URL"
+					mpv $display --ytdl-format=$vquality $URL
+					rm quality_list
+
+				elif [[ "$num_stream" = "true" ]];
+				then
+					echo "CHECK: PASS"
+					vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
+					aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1 | tail -n1)
+					#Test if aquality is empty
+					if [[ -z "$aquality" ]]; then
+						#Since the value is empty lets default to something or else youtube-dl will exit
+						aquality=bestaudio/best
+					fi
+					echo "mpv $display --ytdl-format=$vquality+$aquality $URL"
+					mpv $display --ytdl-format=$vquality+$aquality $URL
+					rm quality_list
+				fi
+			fi
+		else
+			#This shouldn't be needed, but it's here just in case.
+			#echo "QUALITY_CHECK: Error, improper loop exit on false value."	
+			#echo "QUALITY_CHECK: FAIL"
+			#sleep 2s
+			#read -s -n 1 -p "Press any key to exit..."
+			echo ""
+		fi
+	fi
+}
+ytscrape () {
+	#Setup loop for user input.
+	while true; do
+		cd $installdir/youtube/
+# !REDACT FOD MOD 
+#(This loop was made so that the script could handle command line arguments.)
+#		while test $# -gt 0; do
+#			case "$1" in
+#				-u|--update)
+#					bash scripts/update
+#					exit 0
+#					;;
+#				*)
+#					echo "$1 is an unknown argument!"
+#					exit 0
+#					;;
+#			esac
+#		done
+	clear
+
+	#Display input options
+	printf "Choose an option by entering its reference seen in the brackets [n]:\n\n[1] Update list\n[2] View list\n[3] View list in spreadsheet\n[4] YouTube-dl\n[c] Add / Remove channels\n[l] Change list layout\n[R] Reset ytscrape options to default\n[h] Help\n[q] Quit\n\n"
+	read -p "Enter an option: " MAIN_OPT
+
+	#Update list
+	if test "$MAIN_OPT" = "1" ;
+	then
+		clear
+		update
+		clear
+		cd $installdir/youtube/
+		cat data/list data/timestamp
+		printf "\n"
+		read -s -n 1 -p "Press any key to continue..."
+	fi
+
+	#View list
+	if test "$MAIN_OPT" = "2" ;
+	then
+
+		#Setup loop for user input.
+		while true; do
+		clear
+		cd $installdir/youtube/data
+		cat list timestamp
+
+		#Display input options
+		printf "\nChoose an option by entering its reference seen in the brackets:\n\n[l] Change list layout\n[i] Display video info\n[b] Go Back\n\n"
+		read -p "Enter an option: " SUB_OPT
+
+		#Change list layout
+		if test "$SUB_OPT" = "l" ;
+		then
+			nano options3
+			#Grep for time info
+			bash options2
+			#Organize layout by time.
+			bash options3
+			#Build list
+			bash options4
+		fi
+
+		#Display video info
+		if test "$SUB_OPT" = "i" ;
+		then
+			vidinfo
+		fi
+
+		#Go Back
+		if test "$SUB_OPT" = "b" ;
+		then
+			break
+		fi
+		done
+	fi
+
+	#View list in spread sheet.
+	if test "$MAIN_OPT" = "3" ;
+	then
+		cd data/
+
+		#Grep for time info
+		bash options2
+
+		#Organize layout by time.
+		bash options3
+
+		#Build list
+		bash options4
+		localc list.ods
+	fi
+
+	#YouTube-dl
+	if test "$MAIN_OPT" = "4" ;
+	then
+		vidl
+	fi
+
+	#Add / Remove channels
+	if test "$MAIN_OPT" = "c" ;
+	then
+		nano channels
+	fi
+
+	#Change list layout
+	if test "$MAIN_OPT" = "l" ;
+	then
+		cd data/
+		nano options3
+
+		#Grep for time info
+		bash options2
+
+		#Organize layout by time.
+		bash options3
+
+		#Build list
+		bash options4
+	fi
+
+	#Reset
+	if [ "$MAIN_OPT" = "R" -o "$MAIN_OPT" = "r" ];
+	then
+		clear
+		printf "Are you sure?\nThis will reset your download locations, quality settings, and list asortment."
+		read -p "y(YES)/n(NO): " SUB_OPT2
+
+		# If YES
+		if [ "$SUB_OPT2" = "Y" -o "$SUB_OPT2" = "y" -o "$SUB_OPT2" = "yes" -o "$SUB_OPT2" = "YES" ];
+		then
+			echo "Resetting ytscrape options."
+			cd data/ &&
+			rm options* 
+			cp reset/* .
+
+			#Grep for time info
+			bash options2
+
+			#Organize layout by time.
+			bash options3
+
+			#Build list
+			bash options4
+
+			#Prompt for input to end script and return back to the initial ytscrape loop.
+			read -s -n 1 -p "Reset complete. Press any key to continue..."
+		#No action taken if input is anything else
+		fi
+
 	#If NO
 	else
-	echo ""
-	
-fi
-#Help
-if test "$ans" = "h" ;
-then
-	fold -w200 -s data/help | less
-fi
-#Quit
-if test "$ans" = "q" ;
-then
-	clear
-	exit
-fi
-done
+		echo ""
+	fi
 
+	#Help
+	if test "$MAIN_OPT" = "h" ;
+	then
+		fold -w200 -s data/help | less
+	fi
+
+	#Quit
+	if test "$MAIN_OPT" = "q" ;
+	then
+		clear
+		exit 0
+	fi
+	done
+}
+
+ytscrape
