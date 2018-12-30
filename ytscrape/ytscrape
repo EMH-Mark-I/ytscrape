@@ -442,7 +442,8 @@ vidl (){
 	#Display video info
 	if test "$VID_OPT" = "i" ;
 	then
-		bash ../scripts/vidinfo
+		vidinfo
+		cd $installdir/youtube/data/
 	fi
 
 	#Options
