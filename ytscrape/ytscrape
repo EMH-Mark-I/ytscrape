@@ -414,7 +414,7 @@ vidl (){
 	#Open video in browser
 	if test "$VID_OPT" = "4" ;
 	then
-		read -p "Input the URL reference number seen from the list:	" ans
+		read -p "Input the URL reference number seen from the list:	" SUB_VID_OPT
 
 		#Check answer
 		if [ "$SUB_VID_OPT" = "q" -o "$SUB_VID_OPT" = "Q" ];
