@@ -14,3 +14,7 @@
 # MPV display options.
 # If you want videos to start in fullscreen, add "--fs" to the end of the string below.
 4: --autofit=100%x100% --fs
+
+# Audio quality settings.
+# Select from low, medium, and high.
+5: high

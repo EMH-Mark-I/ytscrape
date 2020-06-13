@@ -14,7 +14,8 @@ update (){
 	sed -i 's|?disable_polymer=1||' channels
 
 	#Download the channel info.
-	wget -i channels -P store
+	wget -i channels -P store 2>&1 | tee data/wget_log
+	wget_error=$(grep "ERROR" data/wget_log)
 
 	#Clean out old info.
 	cd data/ 2>/dev/null
@@ -159,6 +160,22 @@ update (){
 	rm users views URL URL2 titles vidl_URL bldlist top 2>/dev/null
 	rm ../store/*
 
+	#Warn about channel download errors
+	if [ ! -z "$wget_error" ];
+	then
+		clear
+		printf "Wget encountered some errors when fetching channel content!\nThere could be missing or discontinued channels. :\nDo you want to see the wget log?\n"
+		read -p "y(YES)/n(NO): " LOG_OPT
+		# If YES
+		if [ "$LOG_OPT" = "Y" -o "$LOG_OPT" = "y" -o "$LOG_OPT" = "yes" -o "$LOG_OPT" = "YES" ];
+		then
+			less wget_log
+		fi
+	fi
+
+	#Cleanup
+	rm wget_log
+
 	#Prompt for input to end script and return back to the initial ytscrape loop.
 	#read -s -n 1 -p "Press any key to continue..."
 }
@@ -278,6 +295,7 @@ vidl (){
 	vlocation=$(cat options | grep "1:" | sed 's/1: //')
 	mlocation=$(cat options | grep "2:" | sed 's/2: //')
 	quality=$(cat options | grep "3:" | sed 's/3: //')
+	aquality=$(cat options | grep "5:" | sed 's/5: //')
 
 	#Setup loop for user input.
 	while true; do
@@ -287,95 +305,134 @@ vidl (){
 		#DASH videos won't always work in mpv, so this is why the options are limited. You can add your own if you want to expand the range.
 		if [[ $quality = "144p" ]];
 		then
-			quality_type="small"
-			audiotype="small"
-			audiotype2="x144"
-			audiotype3="3gp"
+			tag_count=4
+			itag_1=160
+			itag_2=219
+			itag_3=278
+			itag_4=17
+
+		elif [[ $quality = "144p60" ]];
+		then
+			tag_count=1
+			itag_1=330
 
 		elif [[ $quality = "180p" ]];
 		then
-			quality_type="small"
-			audiotype="small"
-			audiotype2="x180"
-			audiotype3="3gp"
+			tag_count=1
+			itag_1=36
 
 		elif [[ $quality = "240p" ]];
 		then
-			quality_type="240p"
-			audiotype="small"
-			audiotype2="x180"
-			audiotype3="3gp"
+			tag_count=5
+			itag_1=133
+			itag_2=242
+			itag_3=5
+			itag_4=132
+			itag_5=92
+
+		elif [[ $quality = "240p60" ]];
+		then
+			tag_count=1
+			itag_1=331
 
 		elif [[ $quality = "360p" ]];
 		then
-			quality_type="medium"
-			audiotype="medium"
-			audiotype2="x360"
-			audiotype3="mp4"
+			tag_count=9
+			itag_1=134
+			itag_2=82
+			itag_3=18
+			itag_4=167
+			itag_5=243
+			itag_6=100
+			itag_7=43
+			itag_8=34
+			itag_9=93
+
+		elif [[ $quality = "360p60" ]];
+		then
+			tag_count=1
+			itag_1=332
+
+		elif [[ $quality = "480p" ]];
+		then
+			tag_count=11
+			itag_1=135
+			itag_2=168
+			itag_3=218
+			itag_4=244
+			itag_5=245
+			itag_6=246
+			itag_7=44
+			itag_8=35
+			itag_9=83
+			itag_10=94
+			itag_11=101
+
+		elif [[ $quality = "480p60" ]];
+		then
+			tag_count=1
+			itag_1=333
 
 		elif [[ $quality = "720p" ]];
 		then
-			quality_type="720p"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=7
+			itag_1=136
+			itag_2=22
+			itag_3=247
+			itag_4=45
+			itag_5=84
+			itag_6=102
+			itag_7=95
 
 		elif [[ $quality = "720p60" ]];
 		then
-			quality_type="720p60"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=3
+			itag_1=298
+			itag_2=302
+			itag_3=334
 
 		elif [[ $quality = "1080p" ]];
 		then
-			quality_type="1080p"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=7
+			itag_1=137
+			itag_2=37
+			itag_3=169
+			itag_4=248
+			itag_5=46
+			itag_6=85
+			itag_7=96
 
 		elif [[ $quality = "1080p60" ]];
 		then
-			quality_type="1080p60"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=3
+			itag_1=299
+			itag_2=303
+			itag_3=335
 
 		elif [[ $quality = "1440p" ]];
 		then
-			quality_type="1440p"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=2
+			itag_1=264
+			itag_2=271
 
 		elif [[ $quality = "1440p60" ]];
 		then
-			quality_type="1440p60"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=2
+			itag_1=308
+			itag_2=336
 
 		elif [[ $quality = "2160p" ]];
 		then
-			quality_type="2160p"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=1
+			itag_1=313
 
 		elif [[ $quality = "2160p60" ]];
 		then
-			quality_type="2160p60"
-			audiotype="hd720"
-			#audiotype2="x720"
-			audiotype2="1280x"
-			audiotype3="mp4"
+			tag_count=4
+			itag_1=138
+			itag_2=266
+			itag_3=315
+			itag_4=337
 
 		else
 			echo "ERROR: Invalid option detected in streaming quality settings!"
@@ -384,6 +441,37 @@ vidl (){
 			sleep 2s
 			read -s -n 1 -p "Press any key to continue..."
 			editor +12 options
+			break
+		fi
+
+		if [[ $aquality = "low" ]];
+		then
+			tag_audio_count=3
+			itag_audio_1=139
+			itag_audio_2=249
+			itag_audio_3=250
+
+		elif [[ $aquality = "medium" ]];
+		then
+			tag_audio_count=4
+			itag_audio_1=140
+			itag_audio_2=251
+			itag_audio_3=171
+			itag_audio_4=172
+
+		elif [[ $aquality = "high" ]];
+		then
+			tag_audio_count=2
+			itag_audio_1=141
+			itag_audio_2=172
+
+		else
+			echo "ERROR: $aquality Invalid option detected in audio quality settings!"
+			sleep 2s
+			printf "Please insert a valid option.\n"
+			sleep 2s
+			read -s -n 1 -p "Press any key to continue..."
+			editor +20 options
 			break
 		fi
 
@@ -422,7 +510,7 @@ vidl (){
 			echo "Exit"
 		else
 			clear
-			URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$SUB_VID_OPT q;d" | sed 's|^|https://youtube.com/watch?v=|')
+			URL=$(grep 'URL' vidl_URL2 | rev | cut -d "=" -f1 | rev | sed "$SUB_VID_OPT q;d" | sed 's|^|https://invidio.us/watch?v=|')
 			xdg-open $URL &>/dev/null & disown
 		fi
 	fi
@@ -510,91 +598,270 @@ vidl_download () {
 		rev |
 		sed "$ans q;d" |
 		sed 's|^|https://www.youtube.com/watch?v=|')
+		display=$(cat options |
+		grep "4:" |
+		sed 's/4: //')
 
-		#List video qualities of selected video.
-		youtube-dl -F $URL > quality_list
+		#List itags of video.
+		youtube-dl -F $URL | cut -d' ' -f1 | grep -o '[0-9]*' > quality_list
 
 		#Check if defined quality is available. If the defined quality is not available, then fallback onto a lower quality from the defined setting.
 		quality_check_ct=0
 		quality_check=false
 		until [ $quality_check_ct -gt 1 ]  
 		do
-			if grep -Fq $quality_type quality_list
+			tag_counter=1
+			counter=1
+			while [ $counter -le $tag_count ]
+			do
+				var_pointer="itag_$tag_counter"
+				itag_count="${!var_pointer}"
+				if grep -Fq "$itag_count" quality_list
+				then
+					((quality_check_ct++))
+					quality_check="true"
+					counter=999
+					#Now check if the audio quality is available
+					aquality_check=false
+					atag_counter=1
+					acounter=1
+					while [ "$acounter" -le "$tag_audio_count" ]
+					do
+						avar_pointer="itag_audio_$atag_counter"
+						aitag_count="${!avar_pointer}"
+						if grep -Fq "$aitag_count" quality_list
+						then
+							aquality_check=true
+							acounter=999
+						else
+							((atag_counter++))
+						fi
+						((acounter++))
+					done
+					if [[ "$aquality_check" = "false" ]];
+					then
+						echo "AUDIO_QUALITY_CHECK: $aquality audio quality for this video does not exist! Checking for fallback."
+						#Falling back to an available quality
+						if [[ $aquality = "high" ]];
+						then
+							aquality=medium
+							tag_audio_count=4
+							itag_audio_1=140
+							itag_audio_2=251
+							itag_audio_3=171
+							itag_audio_4=172
+
+						elif [[ $aquality = "medium" ]];
+						then
+							aquality=low
+							tag_audio_count=3
+							itag_audio_1=139
+							itag_audio_2=249
+							itag_audio_3=250
+
+						elif [[ $aquality = "low" ]];
+						then
+							echo "AUDIO_QUALITY_CHECK: Error, no audio qualities are available!"
+							echo "AUDIO_QUALITY_CHECK: FAIL"
+							read -s -n 1 -p "Press any key to continue..."
+							break
+
+						else
+							echo "AUDIO_QUALITY_CHECK: Error, no audio qualities are available!"
+							echo "AUDIO_QUALITY_CHECK: FAIL"
+							read -s -n 1 -p "Press any key to continue..."
+							break
+						fi
+					fi
+				else
+					((tag_counter++))
+				fi
+					((counter++))
+			done
+			if [[ "$quality_check" = "false" ]]
 			then
-				((quality_check_ct++))
-				quality_check="true"
-			else
-				echo "QUALITY_CHECK: $quality_type for this video does not exist! Checking for fallback."
-
-				#Falling back to an avilable quality
-				if [[ $quality_type = "2160p60" ]];
+				echo "QUALITY_CHECK: $quality for this video does not exist! Checking for fallback."
+				#Falling back to an available quality
+				if [[ $quality = "2160p60" ]];
 				then
-					quality_type="1440p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=2160p
+					tag_count=1
+					itag_1=313
 
-				elif [[ $quality_type = "2160p" ]];
+				elif [[ $quality = "2160p" ]];
 				then
-					quality_type="1440p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1440p
+					tag_count=2
+					itag_1=264
+					itag_2=271
 
-				elif [[ $quality_type = "1440p60" ]];
+				elif [[ $quality = "1440p60" ]];
 				then
-					quality_type="1080p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1440p
+					tag_count=2
+					itag_1=264
+					itag_2=271
 
-				elif [[ $quality_type = "1440p" ]];
+				elif [[ $quality = "1440p" ]];
 				then
-					quality_type="1080p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1080p
+					tag_count=7
+					itag_1=137
+					itag_2=37
+					itag_3=169
+					itag_4=248
+					itag_5=46
+					itag_6=85
+					itag_7=96
 
-				elif [[ $quality_type = "1080p60" ]];
+				elif [[ $quality = "1080p60" ]];
 				then
-					quality_type="720p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1080p
+					tag_count=7
+					itag_1=137
+					itag_2=37
+					itag_3=169
+					itag_4=248
+					itag_5=46
+					itag_6=85
+					itag_7=96
 
-				elif [[ $quality_type = "1080p" ]];
+				elif [[ $quality = "1080p" ]];
 				then
-					quality_type="720p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=720p
+					tag_count=7
+					itag_1=136
+					itag_2=22
+					itag_3=247
+					itag_4=45
+					itag_5=84
+					itag_6=102
+					itag_7=95
 
-				elif [[ $quality_type = "720p60" ]];
+				elif [[ $quality = "720p60" ]];
 				then
-					quality_type="720p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=720p
+					tag_count=7
+					itag_1=136
+					itag_2=22
+					itag_3=247
+					itag_4=45
+					itag_5=84
+					itag_6=102
+					itag_7=95
 
-				elif [[ $quality_type = "720p" ]];
+				elif [[ $quality = "720p" ]];
 				then
-					quality_type="medium"
-					audiotype="medium"
-					audiotype2="x360"
+					quality=480p
+					tag_count=11
+					itag_1=135
+					itag_2=168
+					itag_3=218
+					itag_4=244
+					itag_5=245
+					itag_6=246
+					itag_7=44
+					itag_8=35
+					itag_9=83
+					itag_10=94
+					itag_11=101
 
-				elif [[ $quality_type = "medium" ]];
+				elif [[ $quality = "480p60" ]];
 				then
-					quality_type="240p"
-					audiotype="small"
-					audiotype2="x180"
-					audiotype3="3gp"
+					quality=480p
+					tag_count=11
+					itag_1=135
+					itag_2=168
+					itag_3=218
+					itag_4=244
+					itag_5=245
+					itag_6=246
+					itag_7=44
+					itag_8=35
+					itag_9=83
+					itag_10=94
+					itag_11=101
 
-				elif [[ $quality_type = "240p" ]];
+				elif [[ $quality = "480p" ]];
 				then
-					quality_type="small"
-					audiotype="small"
-					audiotype2="x180"
-					audiotype3="3gp"
+					quality=360p
+					tag_count=9
+					itag_1=134
+					itag_2=82
+					itag_3=18
+					itag_4=167
+					itag_5=243
+					itag_6=100
+					itag_7=43
+					itag_8=34
+					itag_9=93
+
+				elif [[ $quality = "360p60" ]];
+				then
+					quality=360p
+					tag_count=9
+					itag_1=134
+					itag_2=82
+					itag_3=18
+					itag_4=167
+					itag_5=243
+					itag_6=100
+					itag_7=43
+					itag_8=34
+					itag_9=93
+
+				elif [[ $quality = "360p" ]];
+				then
+					quality=240p
+					tag_count=5
+					itag_1=133
+					itag_2=242
+					itag_3=5
+					itag_4=132
+					itag_5=92
+
+				elif [[ $quality = "240p60" ]];
+				then
+					quality=240p
+					tag_count=5
+					itag_1=133
+					itag_2=242
+					itag_3=5
+					itag_4=132
+					itag_5=92
+
+				elif [[ $quality = "240p" ]];
+				then
+					quality=180p
+					tag_count=1
+					itag_1=36
+
+				elif [[ $quality = "180" ]];
+				then
+					quality=144p
+					tag_count=4
+					itag_1=160
+					itag_2=219
+					itag_3=278
+					itag_4=17
+
+
+				elif [[ $quality = "144p60" ]];
+				then
+					quality=144p
+					tag_count=4
+					itag_1=160
+					itag_2=219
+					itag_3=278
+					itag_4=17
+
+
+				elif [[ $quality = "144p" ]];
+				then
+					echo "QUALITY_CHECK: Error, no video qualities are available!"
+					echo "QUALITY_CHECK: FAIL"
+					read -s -n 1 -p "Press any key to continue..."
+					break
 
 				else
 					echo "QUALITY_CHECK: Error, no video qualities are available!"
@@ -608,86 +875,18 @@ vidl_download () {
 		#This first check is made up in case the loop above was improperly exited. This will prevent the script from continuing to attempt to load the video in that condition.
 		if [[ "$quality_check" = "true" ]];
 		then
-			echo "QUALITY_CHECK: $quality_type exists."
-			vid_check=false
-			#Check for available video extension types. MP4 is preferred.
-			if grep $quality_type quality_list | grep -Fwq mp4
+			echo "QUALITY_CHECK: $quality exists."
+			echo "AUDIO_QUALITY_CHECK: $aquality exists."
+			echo "CHECK: PASS"
+			echo "youtube-dl -f $itag_count+$aitag_count $URL -o $vlocation"
+			youtube-dl -f $itag_count+$aitag_count $URL -o $vlocation
+			if [ $? -eq 0 ];
 			then
-				vid_check="true"
-				vidtype="mp4"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
-			elif grep $quality_type quality_list | grep -Fwq webm
-			then
-				vid_check="true"
-				vidtype="webm"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
-			elif grep $quality_type quality_list | grep -Fwq 3gp
-			then
-				vid_check="true"
-				vidtype="3gp"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
+				notify-send "YTscrape: Your video finished downloading."
 			else
-				echo "VID_CHECK: Error, there are no known video extensions detected for $quality_type."
-				echo "VID_CHECK: FAIL"
-				sleep 2s
-				read -s -n 1 -p "Press any key to exit..."
+				notify-send "YTscrape: There was an error while downloading the video."
 			fi
-
-			#Check for quality level. 360p and below qualities can be loaded from one file (video and audio combined.) Higher qualities have separated video and audio files.
-			if [[ "$vid_check" = "true" ]];
-			then
-					low_stream=false
-					num_stream=false
-					if [[ $quality_type = "small" ]];
-					then
-						low_stream="true"
-
-					elif [[ $quality_type = "medium" ]];
-					then
-						low_stream="true"
-
-					else
-						num_stream="true"
-					fi
-
-					if [[ "$low_stream" = "true" ]];
-					then
-						echo "CHECK: PASS"
-						vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
-						echo "youtube-dl -f $vquality $URL -o $vlocation"
-						youtube-dl -f $vquality $URL -o $vlocation
-						if [ $? -eq 0 ];
-						then
-							notify-send "YTscrape: Your video finished downloading."
-						else
-							notify-send "YTscrape: There was an error with downloading the video."
-						fi
-						rm quality_list
-
-					elif [[ "$num_stream" = "true" ]];
-					then
-						echo "CHECK: PASS"
-						vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
-						aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1 | tail -n1)
-						#Test if aquality is empty
-						if [[ -z "$aquality" ]]; then
-							#Since the value is empty lets default to something or else youtube-dl will exit
-							aquality=bestaudio/best
-						fi
-						echo "youtube-dl -f $vquality+$aquality $URL -o $vlocation"
-						youtube-dl -f $vquality+$aquality $URL -o $vlocation
-						if [ $? -eq 0 ];
-						then
-							notify-send "YTscrape: Your video finished downloading."
-						else
-							notify-send "YTscrape: There was an error while downloading the video."
-						fi
-						rm quality_list
-					fi
-				fi
+			rm quality_list
 		else
 			#This shouldn't be needed, but it's here just in case.
 			#echo "QUALITY_CHECK: Error, improper loop exit on false value."	
@@ -720,90 +919,266 @@ vidl_stream () {
 		grep "4:" |
 		sed 's/4: //')
 
-		#List video qualities of selected video.
-		youtube-dl -F $URL > quality_list
+		#List itags of video.
+		youtube-dl -F $URL | cut -d' ' -f1 | grep -o '[0-9]*' > quality_list
 
 		#Check if defined quality is available. If the defined quality is not available, then fallback onto a lower quality from the defined setting.
 		quality_check_ct=0
 		quality_check=false
 		until [ $quality_check_ct -gt 1 ]  
 		do
-			if grep -Fq $quality_type quality_list
+			tag_counter=1
+			counter=1
+			while [ $counter -le $tag_count ]
+			do
+				var_pointer="itag_$tag_counter"
+				itag_count="${!var_pointer}"
+				if grep -Fq "$itag_count" quality_list
+				then
+					((quality_check_ct++))
+					quality_check="true"
+					counter=999
+					#Now check if the audio quality is available
+					aquality_check=false
+					atag_counter=1
+					acounter=1
+					while [ "$acounter" -le "$tag_audio_count" ]
+					do
+						avar_pointer="itag_audio_$atag_counter"
+						aitag_count="${!avar_pointer}"
+						if grep -Fq "$aitag_count" quality_list
+						then
+							aquality_check=true
+							acounter=999
+						else
+							((atag_counter++))
+						fi
+						((acounter++))
+					done
+					if [[ "$aquality_check" = "false" ]];
+					then
+						echo "AUDIO_QUALITY_CHECK: $aquality audio quality for this video does not exist! Checking for fallback."
+						#Falling back to an available quality
+						if [[ $aquality = "high" ]];
+						then
+							aquality=medium
+							tag_audio_count=4
+							itag_audio_1=140
+							itag_audio_2=251
+							itag_audio_3=171
+							itag_audio_4=172
+
+						elif [[ $aquality = "medium" ]];
+						then
+							aquality=low
+							tag_audio_count=3
+							itag_audio_1=139
+							itag_audio_2=249
+							itag_audio_3=250
+
+						elif [[ $aquality = "low" ]];
+						then
+							echo "AUDIO_QUALITY_CHECK: Error, no audio qualities are available!"
+							echo "AUDIO_QUALITY_CHECK: FAIL"
+							read -s -n 1 -p "Press any key to continue..."
+							break
+
+						else
+							echo "AUDIO_QUALITY_CHECK: Error, no audio qualities are available!"
+							echo "AUDIO_QUALITY_CHECK: FAIL"
+							read -s -n 1 -p "Press any key to continue..."
+							break
+						fi
+					fi
+				else
+					((tag_counter++))
+				fi
+					((counter++))
+			done
+			if [[ "$quality_check" = "false" ]]
 			then
-				((quality_check_ct++))
-				quality_check="true"
-			else
-				echo "QUALITY_CHECK: $quality_type for this video does not exist! Checking for fallback."
-
-				#Falling back to an avilable quality
-				if [[ $quality_type = "2160p60" ]];
+				echo "QUALITY_CHECK: $quality for this video does not exist! Checking for fallback."
+				#Falling back to an available quality
+				if [[ $quality = "2160p60" ]];
 				then
-					quality_type="1440p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=2160p
+					tag_count=1
+					itag_1=313
 
-				elif [[ $quality_type = "2160p" ]];
+				elif [[ $quality = "2160p" ]];
 				then
-					quality_type="1440p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1440p
+					tag_count=2
+					itag_1=264
+					itag_2=271
 
-				elif [[ $quality_type = "1440p60" ]];
+				elif [[ $quality = "1440p60" ]];
 				then
-					quality_type="1080p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1440p
+					tag_count=2
+					itag_1=264
+					itag_2=271
 
-				elif [[ $quality_type = "1440p" ]];
+				elif [[ $quality = "1440p" ]];
 				then
-					quality_type="1080p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1080p
+					tag_count=7
+					itag_1=137
+					itag_2=37
+					itag_3=169
+					itag_4=248
+					itag_5=46
+					itag_6=85
+					itag_7=96
 
-				elif [[ $quality_type = "1080p60" ]];
+				elif [[ $quality = "1080p60" ]];
 				then
-					quality_type="720p60"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=1080p
+					tag_count=7
+					itag_1=137
+					itag_2=37
+					itag_3=169
+					itag_4=248
+					itag_5=46
+					itag_6=85
+					itag_7=96
 
-				elif [[ $quality_type = "1080p" ]];
+				elif [[ $quality = "1080p" ]];
 				then
-					quality_type="720p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=720p
+					tag_count=7
+					itag_1=136
+					itag_2=22
+					itag_3=247
+					itag_4=45
+					itag_5=84
+					itag_6=102
+					itag_7=95
 
-				elif [[ $quality_type = "720p60" ]];
+				elif [[ $quality = "720p60" ]];
 				then
-					quality_type="720p"
-					audiotype="hd720"
-					audiotype2="x720"
-					audiotype3="mp4"
+					quality=720p
+					tag_count=7
+					itag_1=136
+					itag_2=22
+					itag_3=247
+					itag_4=45
+					itag_5=84
+					itag_6=102
+					itag_7=95
 
-				elif [[ $quality_type = "720p" ]];
+				elif [[ $quality = "720p" ]];
 				then
-					quality_type="medium"
-					audiotype="medium"
-					audiotype2="x360"
+					quality=480p
+					tag_count=11
+					itag_1=135
+					itag_2=168
+					itag_3=218
+					itag_4=244
+					itag_5=245
+					itag_6=246
+					itag_7=44
+					itag_8=35
+					itag_9=83
+					itag_10=94
+					itag_11=101
 
-				elif [[ $quality_type = "medium" ]];
+				elif [[ $quality = "480p60" ]];
 				then
-					quality_type="240p"
-					audiotype="small"
-					audiotype2="x180"
-					audiotype3="3gp"
+					quality=480p
+					tag_count=11
+					itag_1=135
+					itag_2=168
+					itag_3=218
+					itag_4=244
+					itag_5=245
+					itag_6=246
+					itag_7=44
+					itag_8=35
+					itag_9=83
+					itag_10=94
+					itag_11=101
 
-				elif [[ $quality_type = "240p" ]];
+				elif [[ $quality = "480p" ]];
 				then
-					quality_type="small"
-					audiotype="small"
-					audiotype2="x180"
-					audiotype3="3gp"
+					quality=360p
+					tag_count=9
+					itag_1=134
+					itag_2=82
+					itag_3=18
+					itag_4=167
+					itag_5=243
+					itag_6=100
+					itag_7=43
+					itag_8=34
+					itag_9=93
+
+				elif [[ $quality = "360p60" ]];
+				then
+					quality=360p
+					tag_count=9
+					itag_1=134
+					itag_2=82
+					itag_3=18
+					itag_4=167
+					itag_5=243
+					itag_6=100
+					itag_7=43
+					itag_8=34
+					itag_9=93
+
+				elif [[ $quality = "360p" ]];
+				then
+					quality=240p
+					tag_count=5
+					itag_1=133
+					itag_2=242
+					itag_3=5
+					itag_4=132
+					itag_5=92
+
+				elif [[ $quality = "240p60" ]];
+				then
+					quality=240p
+					tag_count=5
+					itag_1=133
+					itag_2=242
+					itag_3=5
+					itag_4=132
+					itag_5=92
+
+				elif [[ $quality = "240p" ]];
+				then
+					quality=180p
+					tag_count=1
+					itag_1=36
+
+				elif [[ $quality = "180" ]];
+				then
+					quality=144p
+					tag_count=4
+					itag_1=160
+					itag_2=219
+					itag_3=278
+					itag_4=17
+
+
+				elif [[ $quality = "144p60" ]];
+				then
+					quality=144p
+					tag_count=4
+					itag_1=160
+					itag_2=219
+					itag_3=278
+					itag_4=17
+
+
+				elif [[ $quality = "144p" ]];
+				then
+					echo "QUALITY_CHECK: Error, no video qualities are available!"
+					echo "QUALITY_CHECK: FAIL"
+					read -s -n 1 -p "Press any key to continue..."
+					break
 
 				else
 					echo "QUALITY_CHECK: Error, no video qualities are available!"
@@ -817,74 +1192,12 @@ vidl_stream () {
 		#This first check is made up in case the loop above was improperly exited. This will prevent the script from continuing to attempt to load the video in that condition.
 		if [[ "$quality_check" = "true" ]];
 		then
-			echo "QUALITY_CHECK: $quality_type exists."
-			vid_check=false
-			#Check for available video extension types. MP4 is preferred.
-			if grep $quality_type quality_list | grep -Fwq mp4
-			then
-				vid_check="true"
-				vidtype="mp4"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
-			elif grep $quality_type quality_list | grep -Fwq webm
-			then
-				vid_check="true"
-				vidtype="webm"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
-			elif grep $quality_type quality_list | grep -Fwq 3gp
-			then
-				vid_check="true"
-				vidtype="3gp"
-				echo "VID_CHECK: Video extension is set for $vidtype."
-
-			else
-				echo "VID_CHECK: Error, there are no known video extensions detected for $quality_type."
-				echo "VID_CHECK: FAIL"
-				sleep 2s
-				read -s -n 1 -p "Press any key to exit..."
-			fi
-
-			#Check for quality level. 360p and below qualities can be loaded from one file (video and audio combined.) Higher qualities have separated video and audio files.
-			if [[ "$vid_check" = "true" ]];
-			then
-				low_stream=false
-				num_stream=false
-				if [[ $quality_type = "small" ]];
-				then
-					low_stream="true"
-
-				elif [[ $quality_type = "medium" ]];
-				then
-					low_stream="true"
-
-				else
-					num_stream="true"
-				fi
-
-				if [[ "$low_stream" = "true" ]];
-				then
-					echo "CHECK: PASS"
-					vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
-					echo "mpv $display --ytdl-format=$vquality $URL"
-					mpv $display --ytdl-format=$vquality $URL
-					rm quality_list
-
-				elif [[ "$num_stream" = "true" ]];
-				then
-					echo "CHECK: PASS"
-					vquality=$(grep -w $quality_type quality_list | grep -w $vidtype | cut -d' ' -f1 | tail -n1)
-					aquality=$(grep -w $audiotype quality_list | grep $audiotype2 | grep $audiotype3 | cut -d' ' -f1 | tail -n1)
-					#Test if aquality is empty
-					if [[ -z "$aquality" ]]; then
-						#Since the value is empty lets default to something or else youtube-dl will exit
-						aquality=bestaudio/best
-					fi
-					echo "mpv $display --ytdl-format=$vquality+$aquality $URL"
-					mpv $display --ytdl-format=$vquality+$aquality $URL
-					rm quality_list
-				fi
-			fi
+			echo "QUALITY_CHECK: $quality exists."
+			echo "AUDIO_QUALITY_CHECK: $aquality exists."
+			echo "CHECK: PASS"
+			echo "mpv $display --ytdl-format=$itag_count+$aitag_count $URL"
+			mpv $display --ytdl-format=$itag_count+$aitag_count $URL
+			rm quality_list
 		else
 			#This shouldn't be needed, but it's here just in case.
 			#echo "QUALITY_CHECK: Error, improper loop exit on false value."	
@@ -1019,7 +1332,7 @@ ytscrape () {
 	if [ "$MAIN_OPT" = "R" -o "$MAIN_OPT" = "r" ];
 	then
 		clear
-		printf "Are you sure?\nThis will reset your download locations, quality settings, and list asortment."
+		printf "Are you sure?\nThis will reset your download locations, quality settings, and list asortment.\n"
 		read -p "y(YES)/n(NO): " SUB_OPT2
 
 		# If YES
@@ -1043,10 +1356,6 @@ ytscrape () {
 			read -s -n 1 -p "Reset complete. Press any key to continue..."
 		#No action taken if input is anything else
 		fi
-
-	#If NO
-	else
-		echo ""
 	fi
 
 	#Help
