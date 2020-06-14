@@ -11,10 +11,10 @@ update (){
 	rm store/* 2>/dev/null
 
 	#Fix URLs
-	sed -i 's|$|?disable_polymer=1|' channels
+	#sed -i 's|?disable_polymer=1||' channels
 
 	#Download the channel info.
-	wget --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --user-agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0" -i channels -P store 2>&1 | tee data/wget_log
+	wget --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --user-agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0" --random-wait -i channels -P store 2>&1 | tee data/wget_log
 	wget_error=$(grep "ERROR" data/wget_log)
 	cd store/
 	for i in videos*
