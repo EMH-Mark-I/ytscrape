@@ -10,12 +10,18 @@ update (){
 	#Clean out any files in the store directory.
 	rm store/* 2>/dev/null
 
-	#Fix bad URLs
-	sed -i 's|?disable_polymer=1||' channels
+	#Fix URLs
+	sed -i 's|$|?disable_polymer=1|' channels
 
 	#Download the channel info.
-	wget -i channels -P store 2>&1 | tee data/wget_log
+	wget --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" --user-agent="Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0" -i channels -P store 2>&1 | tee data/wget_log
 	wget_error=$(grep "ERROR" data/wget_log)
+	cd store/
+	for i in videos*
+	do 
+		mv "$i" "`echo $i | sed 's/?disable_polymer=1//'`"
+	done
+	cd ../
 
 	#Clean out old info.
 	cd data/ 2>/dev/null

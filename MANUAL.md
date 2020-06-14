@@ -33,11 +33,11 @@ Insert option "c" and press return. This will open a channels file in nano where
 
 ![](images/add_channels_file.png "channels file")
 
-To add YouTube channels, go to the channel in your web browser and copy the "videos" URL directory. Don't copy the `?disable_polymer=1` at the end of the URL. You can paste the URL into the channels file.
+To add YouTube channels, go to the channel in your web browser and copy the "videos" URL directory. Make sure to include `?disable_polymer=1` at the end of the URL. You can paste the URL into the channels file.
 
-GOOD URL: https://www.youtube.com/user/BryanLunduke/videos
+BAD URL: https://www.youtube.com/user/BryanLunduke/videos
 
-BAD URL: https://www.youtube.com/user/BryanLunduke/videos?disable_polymer=1
+GOOD URL: https://www.youtube.com/user/BryanLunduke/videos?disable_polymer=1
 
 ![](images/youtube_URL.png "youtube_URL")
 
